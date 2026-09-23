@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — Pracownia Lamo{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ project.name }}</h1>
+    <p class="muted small">
+      {{ project.client_name|default:"bez klienta" }}
+      {% if project.client_email %} · {{ project.client_email }}{% endif %}
+      {% if project.client_phone %} · {{ project.client_phone }}{% endif %}
+    </p>
+  </div>
+  <div class="spacer"></div>
+  <span class="badge {{ project.status }}">{{ project.get_status_display }}</span>
+  <a class="btn" href="{% url 'studio:designer' project.pk %}">Projektuj album</a>
+  <a class="btn ghost" href="{% url 'studio:project_edit' project.pk %}">Parametry</a>
+  <a class="btn ghost" href="{% url 'studio:print_sheet' project.pk %}">Przygotuj do druku</a>
+  <a class="btn gold" href="{% url 'studio:pdf' project.pk %}">Pobierz PDF do druku</a>
+</div>
+
+<div class="split">
+  <div>
+    <!-- link dla klienta -->
+    <div class="card">
+      <h2>Pozwól, by klient zaprojektował album</h2>
+      <p class="muted small">Wyślij ten link klientowi. Nie potrzebuje konta ani hasła — otworzy kreator z Twoimi zdjęciami z sesji.</p>
+      <div class="linkbox" style="margin-top:10px">
+        <input class="inp" id="clientLink" value="{{ client_link }}" readonly>
+        <button class="btn ghost sm" type="button" id="btnCopy">Kopiuj</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        {% if project.client_editing_enabled %}
+          <span class="badge in_progress">Kreator otwarty dla klienta</span>
+          <a class="btn ghost sm" target="_blank" rel="noopener" href="{{ project.client_url }}">Podejrzyj widok klienta</a>
+          {% if project.client_email %}
+            <a class="btn sm gold" href="mailto:{{ project.client_email }}?subject={{ project.name|urlencode }} — Twój album do zaprojektowania&body=Dzień dobry,%0D%0A%0D%0Aalbum jest gotowy do zaprojektowania. Wystarczy otworzyć link i ułożyć zdjęcia:%0D%0A{{ client_link|urlencode }}%0D%0A%0D%0APozdrawiam,%0D%0APracownia Lamo">Wyślij e-mailem</a>
+          {% endif %}
+          <form method="post" action="{% url 'studio:project_action' project.pk %}">{% csrf_token %}
+            <input type="hidden" name="action" value="disable_client">
+            <button class="btn ghost sm" type="submit">Zamknij edycję</button>
+          </form>
+        {% else %}
+          <form method="post" action="{% url 'studio:project_action' project.pk %}">{% csrf_token %}
+            <input type="hidden" name="action" value="enable_client">
+            <button class="btn sm" type="submit">Udostępnij kreator klientowi</button>
+          </form>
+          <span class="muted small">Dopóki nie udostępnisz, link tylko pokazuje projekt bez możliwości zmian.</span>
+        {% endif %}
+        <form method="post" action="{% url 'studio:project_action' project.pk %}">{% csrf_token %}
+          <input type="hidden" name="action" value="reset_token">
+          <button class="btn ghost sm" type="submit">Nowy link</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- zdjęcia sesji -->
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>Zdjęcia z sesji</h2>
+        <span class="tiny">{{ photos|length }} zdjęć · wykorzystano {{ project.used_slots }} z {{ project.total_slots }} miejsc</span>
+      </div>
+      <form method="post" enctype="multipart/form-data" action="{% url 'studio:photos_upload' project.pk %}" id="upForm">{% csrf_token %}
+        <label class="drop" id="drop" for="upInput">
+          Przeciągnij zdjęcia tutaj albo kliknij, aby wybrać pliki
+          <input class="sr-only" type="file" name="photos" id="upInput" multiple accept="image/*">
+        </label>
+        <div class="row" style="margin-top:10px">
+          <button class="btn sm" type="submit">Wgraj wybrane</button>
+          <span class="muted small" id="upInfo"></span>
+        </div>
+      </form>
+      {% if photos %}
+      <div class="divider"></div>
+      <div class="gal">
+        {% for ph in photos %}
+        <figure>
+          <img src="{{ ph.image.url }}" alt="{{ ph.original_name }}" loading="lazy">
+          {% if ph.times_used %}<span class="used">użyte {{ ph.times_used }}×</span>{% endif %}
+          <form method="post" action="{% url 'studio:photo_delete' project.pk ph.pk %}">{% csrf_token %}
+            <button class="x" type="submit" title="Usuń zdjęcie">×</button>
+          </form>
+        </figure>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- eksport do druku -->
+    <div class="card">
+      <h2>Plik do druku</h2>
+      <p class="muted small">Składam rozkładówki dokładnie tak, jak wyglądają w kreatorze — w rozdzielczości 300 dpi,
+        w wymiarach {{ project.album_format.width_cm }}×{{ project.album_format.height_cm }} cm na stronę.</p>
+      <form method="get" action="{% url 'studio:pdf' project.pk %}" class="stack" style="margin-top:10px">
+        <div class="check"><input type="checkbox" name="spad" value="1" id="fSpad" checked><label for="fSpad">Dodaj 3 mm spadu na obcięcie</label></div>
+        <div class="check"><input type="checkbox" name="znaczniki" value="1" id="fMarks" checked><label for="fMarks">Znaczniki cięcia i linia zgięcia</label></div>
+        <div class="check"><input type="checkbox" name="okladka" value="1" id="fCover" checked><label for="fCover">Karta tytułowa ze specyfikacją</label></div>
+        <button class="btn" type="submit">Pobierz PDF ({{ project.spreads_count }} rozkładówek)</button>
+      </form>
+      <p class="tiny" style="margin-top:8px">Duże albumy składają się kilkadziesiąt sekund — plik zacznie się pobierać, gdy będzie gotowy.</p>
+    </div>
+
+    <!-- podgląd rozkładówek -->
+    <div class="card">
+      <h2>Układ albumu</h2>
+      <p class="muted small">Tak klient rozłożył zdjęcia. Otwórz kreator, aby poprawić.</p>
+      <div class="divider"></div>
+      <table>
+        <tr><th>Rozkładówka</th><th>Lewa strona</th><th>Prawa strona</th></tr>
+        {% for s in spreads %}
+        <tr>
+          <td>{{ s.index|add:1 }}</td>
+          {% for pg in s.pages.all %}
+          <td>
+            {{ pg.get_layout_display }}
+            <div class="muted small">
+              {% for sl in pg.slots.all %}{% if sl.photo %}{{ sl.photo }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
+            </div>
+            {% if pg.caption %}<div class="tiny">„{{ pg.caption }}”</div>{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <!-- prawa kolumna -->
+  <div>
+    <div class="card">
+      <h2>Specyfikacja</h2>
+      <div class="divider"></div>
+      <ul class="rows">
+        <li><span>Format</span><b>{{ project.album_format.name }}</b></li>
+        <li><span>Rozkładówki</span><b>{{ project.spreads_count }} ({{ project.pages_count }} stron)</b></li>
+        <li><span>Materiał</span><b>{{ project.cover_material.name }}</b></li>
+        <li><span>Kolor</span><b>{{ project.cover_color.name }}</b></li>
+        <li><span>Tłoczenie</span><b>{{ project.foil.name }}</b></li>
+        <li><span>Napis</span><b>{{ project.cover_title|default:"—" }}</b></li>
+      </ul>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <span class="tiny">Cena orientacyjna</span>
+        <b class="serif" style="font-size:22px">{{ project.price|floatformat:2 }} zł</b>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Status</h2>
+      <form method="post" action="{% url 'studio:project_action' project.pk %}" class="stack">{% csrf_token %}
+        <input type="hidden" name="action" value="set_status">
+        <select name="status" class="inp">
+          {% for value, label in project.Status.choices %}
+          <option value="{{ value }}" {% if project.status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn ghost sm" type="submit">Zmień status</button>
+      </form>
+      {% if project.submitted_at %}<p class="tiny" style="margin-top:8px">Oddany przez klienta {{ project.submitted_at|date:"j E Y, H:i" }}</p>{% endif %}
+    </div>
+
+    {% if project.client_note %}
+    <div class="card">
+      <h2>Uwagi klienta</h2>
+      <p class="small" style="white-space:pre-wrap">{{ project.client_note }}</p>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <h2>Notatka pracowni</h2>
+      <form method="post" action="{% url 'studio:project_action' project.pk %}" class="stack">{% csrf_token %}
+        <input type="hidden" name="action" value="note">
+        <textarea class="inp" name="note" rows="4" placeholder="Np. ustalenia z klientem, termin druku">{{ project.note }}</textarea>
+        <button class="btn ghost sm" type="submit">Zapisz notatkę</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Historia</h2>
+      <div class="divider"></div>
+      <ul class="rows">
+        {% for e in events %}
+        <li><span>{{ e.get_kind_display }}{% if e.note %} — {{ e.note }}{% endif %}</span><b class="tiny">{{ e.created_at|date:"j.m H:i" }}</b></li>
+        {% empty %}<li><span class="muted">brak zdarzeń</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+const copyBtn = document.getElementById('btnCopy');
+copyBtn.addEventListener('click', async () => {
+  const field = document.getElementById('clientLink');
+  try { await navigator.clipboard.writeText(field.value); }
+  catch (err) { field.select(); document.execCommand('copy'); }
+  copyBtn.textContent = 'Skopiowano';
+  setTimeout(() => { copyBtn.textContent = 'Kopiuj'; }, 1600);
+});
+
+const drop = document.getElementById('drop');
+const upInput = document.getElementById('upInput');
+const upInfo = document.getElementById('upInfo');
+const describe = () => {
+  const n = upInput.files.length;
+  upInfo.textContent = n ? `wybrano ${n} ${n === 1 ? 'plik' : 'plików'}` : '';
+};
+upInput.addEventListener('change', describe);
+['dragenter', 'dragover'].forEach(type =>
+  drop.addEventListener(type, event => { event.preventDefault(); drop.classList.add('on'); }));
+['dragleave', 'drop'].forEach(type =>
+  drop.addEventListener(type, event => { event.preventDefault(); drop.classList.remove('on'); }));
+drop.addEventListener('drop', event => {
+  const data = new DataTransfer();
+  [...event.dataTransfer.files].filter(f => f.type.startsWith('image/')).forEach(f => data.items.add(f));
+  upInput.files = data.files;
+  describe();
+});
+</script>
+{% endblock %}

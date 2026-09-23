@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Projekty — Pracownia Lamo{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Projekty</h1>
+    <p class="muted small">{{ counts.all }} projektów{% if counts.submitted %} · {{ counts.submitted }} oddanych przez klientów czeka na Ciebie{% endif %}</p>
+  </div>
+  <div class="spacer"></div>
+  <form method="get" class="row">
+    <input class="inp" type="search" name="q" value="{{ query }}" placeholder="Szukaj projektu lub klienta" style="width:230px">
+    <button class="btn ghost sm" type="submit">Szukaj</button>
+  </form>
+</div>
+
+<div class="tabs">
+  <a class="tab {% if not active_status %}on{% endif %}" href="{% url 'studio:projects' %}">Wszystkie</a>
+  {% for value, label in statuses %}
+    <a class="tab {% if active_status == value %}on{% endif %}" href="?status={{ value }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+{% if projects %}
+<div class="grid cards">
+  {% for p in projects %}
+  <a class="card pcard" href="{{ p.get_absolute_url }}">
+    <div class="cover" style="background:{{ p.cover_color.hex_code }}">
+      <div>
+        <div class="ct">{{ p.cover_title|default:p.name }}</div>
+        {% if p.cover_subtitle %}<div class="cs">{{ p.cover_subtitle }}</div>{% endif %}
+      </div>
+    </div>
+    <div class="row" style="justify-content:space-between">
+      <b>{{ p.name }}</b>
+      <span class="badge {{ p.status }}">{{ p.get_status_display }}</span>
+    </div>
+    <div class="small muted">
+      {{ p.client_name|default:"bez klienta" }} · {{ p.album_format.name }} · {{ p.spreads_count }} rozkładówek
+    </div>
+    <div class="thumbs">
+      {% for ph in p.photos.all|slice:":6" %}<img src="{{ ph.image.url }}" alt="">{% endfor %}
+      {% if not p.photos.all %}<span class="tiny">brak zdjęć sesji</span>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:40px">
+  <h2>Jeszcze nic tu nie ma</h2>
+  <p class="muted">Załóż pierwszy projekt: wybierz format i okładkę, wgraj zdjęcia z sesji, a potem wyślij klientowi link do kreatora.</p>
+  <a class="btn" href="{% url 'studio:project_new' %}">Nowy projekt</a>
+</div>
+{% endif %}
+{% endblock %}

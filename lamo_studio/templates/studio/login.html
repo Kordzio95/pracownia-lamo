@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Logowanie — Pracownia Lamo{% endblock %}
+{% block content %}
+<div class="card" style="max-width:420px;margin:40px auto">
+  <h1>Panel pracowni</h1>
+  <p class="muted small">Zaloguj się, aby zakładać projekty fotoksiążek i wysyłać linki klientom.</p>
+  {% if form.errors %}<div class="msg error">Nieprawidłowa nazwa użytkownika lub hasło.</div>{% endif %}
+  <form method="post" class="stack" style="margin-top:14px">{% csrf_token %}
+    <div class="field"><label for="id_username">Użytkownik</label>{{ form.username }}</div>
+    <div class="field"><label for="id_password">Hasło</label>{{ form.password }}</div>
+    <button class="btn" type="submit">Zaloguj</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,699 @@
+{% extends "base.html" %}
+{% block title %}{{ project.name }} — kreator albumu{% endblock %}
+{% block navpublic %}<span class="tiny">Pracownia Lamo · kreator albumu</span>{% endblock %}
+
+{% block head %}
+<style>
+  body { background: var(--cream-2); }
+  main.wrap { max-width: 1500px; padding: 14px 14px 30px; }
+
+  .cbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 10px 14px; margin-bottom: 12px; box-shadow: var(--shadow-sm);
+  }
+  .cbar .spacer { flex: 1; }
+  .chip {
+    font: 600 11.5px Manrope, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-soft); background: var(--cream); border: 1px solid var(--line);
+    padding: 5px 10px; border-radius: 999px;
+  }
+
+  .studioLayout { display: grid; grid-template-columns: 232px minmax(0, 1fr) 260px; gap: 12px; align-items: start; }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 13px; box-shadow: var(--shadow-sm); }
+  .panel h3 { font-size: 15px; margin-bottom: 8px; }
+  .panel .lbl { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; margin: 12px 0 5px; }
+
+  /* taca zdjęć */
+  .tray { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 62vh; overflow: auto; padding-right: 2px; }
+  .ph { position: relative; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); cursor: grab; background: var(--cream); }
+  .ph img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .ph.used { opacity: .45; }
+  .ph.sel { outline: 2px solid var(--caramel); outline-offset: 1px; }
+  .ph .star {
+    position: absolute; top: 3px; right: 3px; border: none; cursor: pointer; line-height: 1;
+    background: rgba(255, 255, 255, .88); border-radius: 50%; width: 20px; height: 20px; font-size: 11px; color: #b9a06a;
+  }
+  .ph .star.on { color: var(--gold); background: #fff; }
+  .ph .cnt { position: absolute; left: 3px; bottom: 3px; background: rgba(55, 43, 37, .8); color: #fff; font-size: 9.5px; padding: 1px 5px; border-radius: 999px; }
+  .toolrow { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tgl {
+    font: 600 11px Manrope, sans-serif; padding: 5px 9px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--cream); color: var(--ink-soft); cursor: pointer;
+  }
+  .tgl.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  /* płótno */
+  .canvasWrap { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); }
+  .spread { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--line); border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); }
+  .pg { position: relative; display: grid; gap: 10px; }
+  .pg.sel { outline: 2px solid var(--caramel); outline-offset: -2px; }
+  .pg .pgcap {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 13px; color: var(--ink-soft); pointer-events: none;
+  }
+  .lay-full { grid-template-columns: 1fr; }
+  .lay-two_v { grid-template-columns: 1fr 1fr; }
+  .lay-two_h { grid-template-rows: 1fr 1fr; }
+  .lay-three { grid-template-columns: 1fr 1fr; grid-template-rows: 1.4fr 1fr; }
+  .lay-three .slot:first-child { grid-column: 1 / -1; }
+  .lay-four { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .lay-six { grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; }
+  .lay-frame { grid-template-columns: 1fr; padding: 10%; }
+  .lay-blank { grid-template-columns: 1fr; }
+
+  .slot {
+    position: relative; overflow: hidden; border-radius: 3px;
+    background: rgba(55, 43, 37, .05); border: 1px dashed rgba(55, 43, 37, .18);
+    display: grid; place-items: center; cursor: pointer;
+  }
+  .slot.has { border-style: solid; border-color: transparent; background: none; }
+  .slot.over { border-color: var(--caramel); background: rgba(176, 137, 104, .16); }
+  .slot.sel { outline: 2px solid var(--caramel); outline-offset: -2px; }
+  .slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .slot .hint { font-size: 10.5px; color: var(--ink-soft); letter-spacing: .08em; text-transform: uppercase; text-align: center; padding: 4px; }
+
+  /* pasek stron */
+  .film { display: flex; gap: 7px; overflow-x: auto; padding: 10px 2px 4px; }
+  .fi {
+    flex: 0 0 auto; width: 84px; cursor: pointer; border: 1px solid var(--line);
+    border-radius: 7px; background: var(--paper); padding: 4px; text-align: center;
+  }
+  .fi.on { border-color: var(--ink); box-shadow: var(--shadow-sm); }
+  .fi .mini { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; height: 34px; }
+  .fi .mini div { background: var(--cream-2); border-radius: 2px; }
+  .fi .mini div.f { background: var(--caramel); }
+  .fi span { font-size: 10px; color: var(--ink-soft); }
+
+  .layouts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .lb { border: 1px solid var(--line); background: var(--cream); border-radius: 7px; padding: 5px; cursor: pointer; }
+  .lb.on { border-color: var(--ink); background: var(--paper); }
+  .lb .g { display: grid; gap: 1.5px; height: 22px; }
+  .lb .g i { background: var(--caramel); opacity: .75; border-radius: 1px; }
+  .bgs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bgdot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); cursor: pointer; }
+  .bgdot.on { outline: 2px solid var(--ink); outline-offset: 1px; }
+  input[type=range] { width: 100%; accent-color: var(--caramel); }
+
+  .modal { position: fixed; inset: 0; background: rgba(55, 43, 37, .5); display: none; place-items: center; z-index: 80; padding: 16px; }
+  .modal.on { display: grid; }
+  .modal .box { background: var(--paper); border-radius: var(--radius); padding: 20px; max-width: 460px; width: 100%; }
+
+  @media (max-width: 1100px) {
+    .studioLayout { grid-template-columns: 1fr; }
+    .tray { grid-template-columns: repeat(4, 1fr); max-height: 30vh; }
+  }
+  @media (max-width: 640px) {
+    .spread { grid-template-columns: 1fr; }
+    .tray { grid-template-columns: repeat(3, 1fr); }
+    .layouts { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cbar">
+  <div>
+    <b class="serif" style="font-size:19px">{{ project.name }}</b>
+    <div class="tiny">{{ project.album_format.name }} · {{ project.cover_material.name }} · {{ project.cover_color.name }}</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="chip" id="chipUsed">—</span>
+  <span class="chip" id="chipSave">nie zapisano</span>
+  <button class="btn ghost sm" id="btnUndo" disabled>Cofnij</button>
+  <button class="btn ghost sm" id="btnAuto">Rozłóż automatycznie</button>
+  {% if mode == 'studio' %}
+    <a class="btn ghost sm" href="{{ project.get_absolute_url }}">Karta projektu</a>
+    <a class="btn ghost sm" href="{% url 'studio:pdf' project.pk %}">PDF do druku</a>
+    <button class="btn sm" id="btnSave">Zapisz</button>
+  {% else %}
+    <button class="btn ghost sm" id="btnSave">Zapisz</button>
+    <button class="btn sm gold" id="btnSubmit">Oddaj projekt do pracowni</button>
+  {% endif %}
+</div>
+
+{% if mode == 'client' and not project.client_editing_enabled %}
+<div class="msg" style="margin-bottom:12px">Ten album jest w tej chwili zablokowany do edycji przez pracownię — możesz go przeglądać, ale zmiany nie zostaną zapisane.</div>
+{% endif %}
+
+<div class="studioLayout">
+  <!-- taca zdjęć -->
+  <aside class="panel">
+    <h3>Zdjęcia z sesji</h3>
+    <div class="toolrow">
+      <button class="tgl" id="tgHide">Ukryj użyte</button>
+      <button class="tgl" id="tgFav">Tylko ulubione</button>
+      <button class="tgl" id="tgSort">Sortuj: nazwa</button>
+    </div>
+    {% if mode == 'studio' or project.client_can_upload %}
+    <label class="drop" style="padding:10px;font-size:12px" for="phInput">
+      Dodaj zdjęcia
+      <input class="sr-only" type="file" id="phInput" multiple accept="image/*">
+    </label>
+    {% endif %}
+    <div class="tray" id="tray"></div>
+    <p class="tiny" id="trayInfo" style="margin-top:8px"></p>
+  </aside>
+
+  <!-- płótno -->
+  <section>
+    <div class="canvasWrap">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <b class="tiny" id="spreadLabel">Rozkładówka 1</b>
+        <div class="row">
+          <button class="btn ghost sm" id="btnPrev">‹</button>
+          <button class="btn ghost sm" id="btnNext">›</button>
+          <button class="btn ghost sm" id="btnAdd">Dodaj rozkładówkę</button>
+          <button class="btn ghost sm danger" id="btnDel">Usuń tę</button>
+        </div>
+      </div>
+      <div class="spread" id="spread"></div>
+      <div class="film" id="film"></div>
+    </div>
+  </section>
+
+  <!-- narzędzia strony -->
+  <aside class="panel">
+    <h3>Wybrana strona</h3>
+    <p class="tiny" id="pageInfo">Kliknij stronę, aby ją edytować</p>
+
+    <div class="lbl">Układ</div>
+    <div class="layouts" id="layouts"></div>
+
+    <div class="lbl">Podpis strony</div>
+    <input class="inp" id="capInput" placeholder="np. Pierwszy dzień lata" maxlength="120">
+
+    <div class="lbl">Tło stron</div>
+    <div class="bgs" id="bgs"></div>
+
+    <div class="lbl">Odstęp między zdjęciami <span id="gapVal"></span></div>
+    <input type="range" id="gap" min="0" max="40" step="2">
+    <div class="lbl">Margines strony <span id="padVal"></span></div>
+    <input type="range" id="pad" min="0" max="60" step="2">
+
+    <div class="divider"></div>
+    <h3>Wybrane zdjęcie</h3>
+    <p class="tiny" id="slotInfo">Kliknij zdjęcie w albumie</p>
+    <div id="cropTools" style="display:none">
+      <div class="lbl">Przybliżenie <span id="zoomVal"></span></div>
+      <input type="range" id="zoom" min="1" max="2.6" step="0.05">
+      <div class="lbl">Przesuń w poziomie</div>
+      <input type="range" id="ox" min="-50" max="50" step="1">
+      <div class="lbl">Przesuń w pionie</div>
+      <input type="range" id="oy" min="-50" max="50" step="1">
+      <button class="btn ghost sm" id="btnClear" style="margin-top:10px;width:100%">Usuń zdjęcie z miejsca</button>
+    </div>
+  </aside>
+</div>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <h2>Oddaj projekt do pracowni</h2>
+    <p class="muted small">Pracownia Lamo dostanie Twój układ i sprawdzi go przed drukiem. Możesz dopisać uwagi.</p>
+    <textarea class="inp" id="noteBox" rows="4" placeholder="Np. proszę o cieplejsze odbitki, zdjęcie z tortem koniecznie na okładce">{{ project.client_note }}</textarea>
+    <div class="row" style="margin-top:12px;justify-content:flex-end">
+      <button class="btn ghost sm" id="btnCancel">Anuluj</button>
+      <button class="btn sm gold" id="btnConfirm">Oddaję projekt</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- dane albumu jako osobny blok JSON, żeby np. cudzysłów w nazwie zdjęcia nie zepsuł skryptu -->
+<script id="payload" type="application/json">{{ payload|safe }}</script>
+<script>
+(() => {
+  'use strict';
+  // wszystko w jednej funkcji, żeby zmienne nie mieszały się z resztą strony
+  const P = JSON.parse(document.getElementById('payload').textContent);
+  // P to cały album. kliknięcia zmieniają P, a funkcje render... rysują widok od nowa z P
+  const MODE = '{{ mode }}';
+  const SAVE_URL = '{{ save_url }}';
+  const UPLOAD_URL = '{{ upload_url }}';
+  const CAN_EDIT = MODE === 'studio' || {{ project.client_editing_enabled|yesno:"true,false" }};
+  // pracownia może zawsze, klient tylko jak fotograf mu otworzy edycję.
+  // to tylko chowa przyciski, prawdziwa blokada jest na serwerze (api_save)
+
+  // ile zdjęć mieści układ, to samo co SLOT_COUNTS w Pythonie
+  const LAYOUTS = {
+    full: 1, two_v: 2, two_h: 2, three: 3, four: 4, six: 6, frame: 1, blank: 0,
+  };
+  const LAYOUT_NAMES = {
+    full: '1 duże', two_v: '2 obok', two_h: '2 nad', three: '1 + 2',
+    four: '4 w kratę', six: '6 małych', frame: 'w ramce', blank: 'puste',
+  };
+  // kolory tła do wyboru, tylko kilka żeby klient nie wybrał czegoś dziwnego
+  const BGS = ['#FFFCF8', '#F7F1E9', '#EFE5D9', '#E4DACB', '#372B25', '#5A423A'];
+
+  const $ = id => document.getElementById(id);
+  // skrót do szukania elementów na stronie, żeby nie pisać ciągle querySelector
+  const photoById = id => P.photos.find(p => p.id === id);
+
+  let cur = 0;            // numer rozkładówki
+  let side = 'L';         // wybrana strona
+  let selSlot = null;     // {side, index}
+  let selPhoto = null;    // zdjęcie wybrane z listy (na telefonie)
+  let hideUsed = false, onlyFav = false, sortByName = false;
+  const HIST = [];  // historia do cofania
+
+  // --- stan ---
+  const snapshot = () => {
+    // przed każdą zmianą zapisuję kopię całego układu jako tekst, z tego potem cofam
+    HIST.push(JSON.stringify(P.pages));
+    if (HIST.length > 40) HIST.shift();
+    // max 40 kroków wstecz, najstarszy wylatuje
+    $('btnUndo').disabled = false;
+  };
+  const usedCount = id => P.pages.reduce((sum, sp) =>
+    sum + ['L', 'R'].reduce((s2, sd) =>
+      s2 + ((sp[sd] && sp[sd].slots) || []).filter(x => x && x.photo === id).length, 0), 0);
+  const page = (index, sd) => P.pages[index] && P.pages[index][sd];
+
+  const blankPage = (layout = 'two_v') => ({
+    layout, caption: '', slots: new Array(LAYOUTS[layout]).fill(null),
+  });
+  P.pages.forEach(sp => ['L', 'R'].forEach(sd => { if (!sp[sd]) sp[sd] = blankPage(); }));
+
+  // --- zapis ---
+  let saveTimer = null, saving = false;
+  const markDirty = () => {
+    // autozapis - po każdej zmianie czekam 1,4 s i zapisuję.
+    // jak w tym czasie będzie kolejna zmiana to liczę od nowa, więc nie leci 50 zapisów naraz
+    clearTimeout(saveTimer);
+    $('chipSave').textContent = 'zmiany niezapisane';
+    saveTimer = setTimeout(save, 1400);
+  };
+  async function save(extra = {}) {
+    if (!CAN_EDIT || saving) return null;
+    // saving pilnuje żeby nie szły dwa zapisy na raz
+    saving = true;
+    $('chipSave').textContent = 'zapisywanie…';
+    try {
+      const res = await fetch(SAVE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pages: P.pages, gap: P.gap, pad: P.pad, pageBg: P.pageBg,
+          title: P.title, sub: P.sub, ...extra,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'błąd zapisu');
+      $('chipSave').textContent = 'zapisano ' + data.saved_at;
+      return data;
+    } catch (err) {
+      // jak nie ma internetu to tylko napis "błąd zapisu", układ zostaje i zapisze się przy następnej zmianie
+      $('chipSave').textContent = 'błąd zapisu';
+      console.error(err);
+      return null;
+    } finally {
+      saving = false;
+    }
+  }
+
+  // --- taca zdjęć ---
+  function renderTray() {
+    let list = P.photos.slice();
+    if (onlyFav) list = list.filter(p => p.fav);
+    if (hideUsed) list = list.filter(p => usedCount(p.id) === 0);
+    if (sortByName) list.sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+    const tray = $('tray');
+    tray.innerHTML = '';
+    list.forEach(photo => {
+      const used = usedCount(photo.id);
+      const node = document.createElement('div');
+      node.className = 'ph' + (used ? ' used' : '') + (selPhoto === photo.id ? ' sel' : '');
+      node.draggable = CAN_EDIT;
+      node.dataset.id = photo.id;
+      node.innerHTML =
+        `<img src="${photo.url}" alt="${photo.name}" loading="lazy">` +
+        `<button class="star${photo.fav ? ' on' : ''}" title="Ulubione">★</button>` +
+        (used ? `<span class="cnt">${used}×</span>` : '');
+      tray.appendChild(node);
+    });
+    $('trayInfo').textContent = `${P.photos.length} zdjęć w sesji · pokazano ${list.length}`;
+    $('chipUsed').textContent = `wykorzystano ${totalUsed()} z ${totalSlots()} miejsc`;
+  }
+  const totalSlots = () => P.pages.reduce((sum, sp) =>
+    sum + ['L', 'R'].reduce((s2, sd) => s2 + (sp[sd].slots || []).length, 0), 0);
+  const totalUsed = () => P.pages.reduce((sum, sp) =>
+    sum + ['L', 'R'].reduce((s2, sd) => s2 + (sp[sd].slots || []).filter(Boolean).length, 0), 0);
+
+  $('tray').addEventListener('click', async event => {
+    const star = event.target.closest('.star');
+    const card = event.target.closest('.ph');
+    if (!card) return;
+    const id = Number(card.dataset.id);
+    if (star) {
+      const res = await fetch(`{{ upload_url }}/${id}/ulubione`, { method: 'POST' });
+      const data = await res.json();
+      const photo = photoById(id);
+      if (photo) photo.fav = data.fav;
+      renderTray();
+      return;
+    }
+    selPhoto = selPhoto === id ? null : id;
+    renderTray();
+  });
+
+  $('tray').addEventListener('dragstart', event => {
+    const card = event.target.closest('.ph');
+    if (!card) return;
+    event.dataTransfer.setData('text/plain', 'photo:' + card.dataset.id);
+  });
+
+  // --- płótno ---
+  function renderSpread() {
+    const spread = P.pages[cur];
+    const host = $('spread');
+    host.innerHTML = '';
+    ['L', 'R'].forEach(sd => {
+      const data = spread[sd];
+      const pg = document.createElement('div');
+      pg.className = `pg lay-${data.layout}` + (side === sd ? ' sel' : '');
+      pg.dataset.side = sd;
+      pg.style.background = P.pageBg;
+      pg.style.gap = P.gap + 'px';
+      pg.style.padding = P.pad + 'px';
+      pg.style.aspectRatio = String(P.format.ratio);
+      (data.slots || []).forEach((slot, index) => {
+        const cell = document.createElement('div');
+        cell.className = 'slot' + (slot ? ' has' : '') +
+          (selSlot && selSlot.side === sd && selSlot.index === index ? ' sel' : '');
+        cell.dataset.side = sd;
+        cell.dataset.index = index;
+        if (slot) {
+          const photo = photoById(slot.photo);
+          cell.innerHTML = photo
+            ? `<img src="${photo.url}" alt="" draggable="${CAN_EDIT}" style="transform:scale(${slot.zoom}) translate(${slot.x}%, ${slot.y}%)">`
+            : '<span class="hint">brak zdjęcia</span>';
+        } else {
+          cell.innerHTML = '<span class="hint">przeciągnij zdjęcie</span>';
+        }
+        pg.appendChild(cell);
+      });
+      if (data.layout === 'blank') {
+        pg.innerHTML = '<span class="hint" style="align-self:center;justify-self:center">strona pusta</span>';
+      }
+      if (data.caption) {
+        const cap = document.createElement('div');
+        cap.className = 'pgcap';
+        cap.textContent = data.caption;
+        pg.appendChild(cap);
+      }
+      host.appendChild(pg);
+    });
+    $('spreadLabel').textContent =
+      `Rozkładówka ${cur + 1} z ${P.pages.length} · strony ${cur * 2 + 1}–${cur * 2 + 2}`;
+  }
+
+  function renderFilm() {
+    const film = $('film');
+    film.innerHTML = '';
+    P.pages.forEach((spread, index) => {
+      const filled = ['L', 'R'].reduce((sum, sd) => sum + spread[sd].slots.filter(Boolean).length, 0);
+      const total = ['L', 'R'].reduce((sum, sd) => sum + spread[sd].slots.length, 0);
+      const item = document.createElement('div');
+      item.className = 'fi' + (index === cur ? ' on' : '');
+      item.dataset.index = index;
+      item.innerHTML =
+        `<div class="mini">${['L', 'R'].map(sd =>
+          `<div class="${spread[sd].slots.filter(Boolean).length ? 'f' : ''}"></div>`).join('')}</div>` +
+        `<span>${index + 1} · ${filled}/${total}</span>`;
+      film.appendChild(item);
+    });
+  }
+
+  function renderTools() {
+    const data = page(cur, side);
+    $('pageInfo').textContent =
+      `Rozkładówka ${cur + 1}, strona ${side === 'L' ? 'lewa' : 'prawa'} · ${LAYOUT_NAMES[data.layout]}`;
+    $('capInput').value = data.caption || '';
+    $('layouts').querySelectorAll('.lb').forEach(btn =>
+      btn.classList.toggle('on', btn.dataset.layout === data.layout));
+    $('bgs').querySelectorAll('.bgdot').forEach(dot =>
+      dot.classList.toggle('on', dot.dataset.bg.toLowerCase() === String(P.pageBg).toLowerCase()));
+    $('gap').value = P.gap; $('gapVal').textContent = P.gap + ' px';
+    $('pad').value = P.pad; $('padVal').textContent = P.pad + ' px';
+
+    const slot = selSlot ? page(cur, selSlot.side).slots[selSlot.index] : null;
+    $('cropTools').style.display = slot ? 'block' : 'none';
+    if (slot) {
+      const photo = photoById(slot.photo);
+      $('slotInfo').textContent = photo ? photo.name : 'zdjęcie';
+      $('zoom').value = slot.zoom; $('zoomVal').textContent = slot.zoom.toFixed(2) + '×';
+      $('ox').value = slot.x; $('oy').value = slot.y;
+    } else {
+      $('slotInfo').textContent = 'Kliknij zdjęcie w albumie';
+    }
+  }
+
+  const renderAll = () => { renderSpread(); renderFilm(); renderTools(); renderTray(); };
+
+  // --- interakcje na płótnie ---
+  // kliknięcia łapię na całej rozkładówce, a closest('.slot') mówi w które miejsce kliknięto
+  $('spread').addEventListener('click', event => {
+    const cell = event.target.closest('.slot');
+    const pg = event.target.closest('.pg');
+    if (pg) side = pg.dataset.side;
+    if (cell) {
+      const sd = cell.dataset.side;
+      const index = Number(cell.dataset.index);
+      const slots = page(cur, sd).slots;
+      if (selPhoto !== null && CAN_EDIT) {
+        // na komputerze się przeciąga, na telefonie: wybierz zdjęcie i dotknij miejsca
+        snapshot();  // kopia przed zmianą, do cofania
+        slots[index] = { photo: selPhoto, zoom: 1, x: 0, y: 0 };
+        selPhoto = null;
+        markDirty();
+      }
+      selSlot = { side: sd, index };
+    } else {
+      selSlot = null;
+    }
+    renderAll();
+  });
+
+  $('spread').addEventListener('dragstart', event => {
+    const cell = event.target.closest('.slot');
+    if (!cell || !cell.classList.contains('has')) return;
+    event.dataTransfer.setData('text/plain', `slot:${cell.dataset.side}:${cell.dataset.index}`);
+  });
+  $('spread').addEventListener('dragover', event => {
+    const cell = event.target.closest('.slot');
+    if (!cell || !CAN_EDIT) return;
+    event.preventDefault();
+    cell.classList.add('over');
+  });
+  $('spread').addEventListener('dragleave', event => {
+    const cell = event.target.closest('.slot');
+    if (cell) cell.classList.remove('over');
+  });
+  $('spread').addEventListener('drop', event => {
+    const cell = event.target.closest('.slot');
+    if (!cell || !CAN_EDIT) return;
+    event.preventDefault();
+    cell.classList.remove('over');
+    const payload = event.dataTransfer.getData('text/plain');
+    const target = { side: cell.dataset.side, index: Number(cell.dataset.index) };
+    snapshot();
+    if (payload.startsWith('photo:')) {
+      page(cur, target.side).slots[target.index] =
+        { photo: Number(payload.slice(6)), zoom: 1, x: 0, y: 0 };
+    } else if (payload.startsWith('slot:')) {
+      // przeciągnięcie z miejsca na miejsce zamienia zdjęcia, nic nie znika
+      const [, fromSide, fromIndex] = payload.split(':');
+      const from = page(cur, fromSide).slots;
+      const to = page(cur, target.side).slots;
+      const moved = from[Number(fromIndex)];
+      from[Number(fromIndex)] = to[target.index] || null;
+      to[target.index] = moved;
+    }
+    selPhoto = null;
+    markDirty();
+    renderAll();
+  });
+
+  $('film').addEventListener('click', event => {
+    const item = event.target.closest('.fi');
+    if (!item) return;
+    cur = Number(item.dataset.index);
+    selSlot = null;
+    renderAll();
+  });
+
+  // --- narzędzia ---
+  $('layouts').innerHTML = Object.keys(LAYOUTS).map(key => {
+    const count = LAYOUTS[key] || 1;
+    const cols = key === 'six' ? 3 : (count > 1 ? 2 : 1);
+    return `<button class="lb" data-layout="${key}" title="${LAYOUT_NAMES[key]}">
+      <div class="g" style="grid-template-columns:repeat(${cols},1fr)">
+        ${'<i></i>'.repeat(LAYOUTS[key] || 0)}
+      </div></button>`;
+  }).join('');
+
+  $('layouts').addEventListener('click', event => {
+    const btn = event.target.closest('.lb');
+    if (!btn || !CAN_EDIT) return;
+    snapshot();
+    const data = page(cur, side);
+    const layout = btn.dataset.layout;
+    // przy zmianie układu zdjęcia zostają, wchodzą po kolei w nowe miejsca.
+    // jak miejsc jest mniej to reszta wraca na listę zdjęć
+    const kept = data.slots.filter(Boolean);
+    data.layout = layout;
+    data.slots = new Array(LAYOUTS[layout]).fill(null).map((_, i) => kept[i] || null);
+    selSlot = null;
+    markDirty();
+    renderAll();
+  });
+
+  $('bgs').innerHTML = BGS.map(hex =>
+    `<button class="bgdot" data-bg="${hex}" style="background:${hex}" title="${hex}"></button>`).join('');
+  $('bgs').addEventListener('click', event => {
+    const dot = event.target.closest('.bgdot');
+    if (!dot || !CAN_EDIT) return;
+    P.pageBg = dot.dataset.bg;
+    markDirty();
+    renderAll();
+  });
+
+  $('capInput').addEventListener('input', event => {
+    page(cur, side).caption = event.target.value;
+    markDirty();
+    renderSpread();
+  });
+
+  // suwaki działają tak samo, więc jedna funkcja na wszystkie
+  const bindRange = (id, apply) => $(id).addEventListener('input', event => {
+    apply(Number(event.target.value));
+    markDirty();
+    renderSpread();
+    renderTools();
+  });
+  bindRange('gap', value => { P.gap = value; });
+  bindRange('pad', value => { P.pad = value; });
+  bindRange('zoom', value => { if (selSlot) page(cur, selSlot.side).slots[selSlot.index].zoom = value; });
+  bindRange('ox', value => { if (selSlot) page(cur, selSlot.side).slots[selSlot.index].x = value; });
+  bindRange('oy', value => { if (selSlot) page(cur, selSlot.side).slots[selSlot.index].y = value; });
+
+  $('btnClear').addEventListener('click', () => {
+    if (!selSlot) return;
+    snapshot();
+    page(cur, selSlot.side).slots[selSlot.index] = null;
+    selSlot = null;
+    markDirty();
+    renderAll();
+  });
+
+  // --- nawigacja i rozkładówki ---
+  $('btnPrev').addEventListener('click', () => { cur = Math.max(0, cur - 1); selSlot = null; renderAll(); });
+  $('btnNext').addEventListener('click', () => { cur = Math.min(P.pages.length - 1, cur + 1); selSlot = null; renderAll(); });
+  $('btnAdd').addEventListener('click', () => {
+    if (!CAN_EDIT) return;
+    snapshot();
+    P.pages.push({ L: blankPage(), R: blankPage() });
+    cur = P.pages.length - 1;
+    markDirty();
+    renderAll();
+  });
+  $('btnDel').addEventListener('click', () => {
+    if (!CAN_EDIT || P.pages.length <= 1) return;
+    if (!confirm('Usunąć tę rozkładówkę?')) return;
+    snapshot();
+    P.pages.splice(cur, 1);
+    cur = Math.max(0, cur - 1);
+    selSlot = null;
+    markDirty();
+    renderAll();
+  });
+
+  $('btnAuto').addEventListener('click', () => {
+    if (!CAN_EDIT) return;
+    snapshot();
+    const queue = P.photos.slice();
+    if (sortByName) queue.sort((a, b) => a.name.localeCompare(b.name, 'pl'));
+    let at = 0;
+    P.pages.forEach(spread => ['L', 'R'].forEach(sd => {
+      spread[sd].slots = spread[sd].slots.map(() => {
+        const photo = queue[at++];
+        return photo ? { photo: photo.id, zoom: 1, x: 0, y: 0 } : null;
+      });
+    }));
+    markDirty();
+    renderAll();
+  });
+
+  $('btnUndo').addEventListener('click', () => {
+    const previous = HIST.pop();
+    if (!previous) return;
+    P.pages = JSON.parse(previous);
+    selSlot = null;
+    if (cur >= P.pages.length) cur = P.pages.length - 1;
+    $('btnUndo').disabled = HIST.length === 0;
+    markDirty();
+    renderAll();
+  });
+
+  // --- filtry tacy ---
+  const toggle = (id, read, write, label) => $(id).addEventListener('click', () => {
+    write(!read());
+    $(id).classList.toggle('on', read());
+    if (label) $(id).textContent = label(read());
+    renderTray();
+  });
+  toggle('tgHide', () => hideUsed, value => { hideUsed = value; });
+  toggle('tgFav', () => onlyFav, value => { onlyFav = value; });
+  toggle('tgSort', () => sortByName, value => { sortByName = value; },
+    value => 'Sortuj: ' + (value ? 'nazwa' : 'kolejność'));
+
+  // --- wgrywanie zdjęć ---
+  const phInput = $('phInput');
+  if (phInput) {
+    phInput.addEventListener('change', async () => {
+      if (!phInput.files.length) return;
+      const form = new FormData();
+      [...phInput.files].forEach(file => form.append('photos', file));
+      $('chipSave').textContent = 'wgrywanie zdjęć…';
+      const res = await fetch(UPLOAD_URL, { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.ok) {
+        P.photos.push(...data.photos);
+        $('chipSave').textContent = `dodano ${data.photos.length} zdjęć`;
+        renderTray();
+      } else {
+        $('chipSave').textContent = data.error || 'błąd wgrywania';
+      }
+      phInput.value = '';
+    });
+  }
+
+  // --- zapis / oddanie projektu ---
+  $('btnSave').addEventListener('click', () => save());
+  const submitBtn = $('btnSubmit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => $('modal').classList.add('on'));
+    $('btnCancel').addEventListener('click', () => $('modal').classList.remove('on'));
+    $('btnConfirm').addEventListener('click', async () => {
+      const data = await save({ submit: true, clientNote: $('noteBox').value });
+      $('modal').classList.remove('on');
+      if (data) {
+        alert('Gotowe. Pracownia Lamo dostała Twój projekt i wróci z potwierdzeniem.');
+        window.location.reload();
+      }
+    });
+  }
+
+  window.addEventListener('keydown', event => {
+    if (event.target.matches('input, textarea')) return;
+    if (event.key === 'ArrowLeft') $('btnPrev').click();
+    if (event.key === 'ArrowRight') $('btnNext').click();
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z') { event.preventDefault(); $('btnUndo').click(); }
+  });
+
+  renderAll();
+  $('chipSave').textContent = 'projekt wczytany';
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lamo — kreator fotoksiążek</title>
+<meta name="description" content="Zaprojektuj własną fotoksiążkę: wgraj zdjęcia, ułóż je na rozkładówkach, dobierz okładkę i wyślij projekt do pracowni Lamo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23F7F1E9'/%3E%3Crect x='8' y='6' width='16' height='20' rx='2' fill='none' stroke='%23372B25' stroke-width='2'/%3E%3Cpath d='M12 6v20' stroke='%23372B25' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+:root{
+  --cream:#F7F1E9; --cream-2:#EFE5D9; --ink:#372B25; --ink-soft:#6B5A50;
+  --rose:#C39199; --caramel:#B08968; --sage:#8E9B87; --choco:#5A423A; --gold:#B08E4F;
+  --line:#E0D3C4; --white:#FFFCF8;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Manrope',system-ui,sans-serif;
+  --shadow:0 24px 60px -30px rgba(55,43,37,.45);
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--cream);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+button{font-family:inherit}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:var(--cream);font-size:.88rem;font-weight:500;cursor:pointer;text-decoration:none;transition:.2s}
+.btn:hover{background:var(--choco);border-color:var(--choco)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--cream-2);border-color:var(--ink)}
+.btn.sm{padding:8px 15px;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* header */
+header{position:sticky;top:0;z-index:60;background:rgba(247,241,233,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{max-width:1560px;margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.brand span{font-family:var(--serif);font-size:1.32rem;line-height:1.05}
+.brand small{display:block;font-family:var(--sans);font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft)}
+/* --- panel pracowni --- */
+.gate{position:fixed;inset:0;z-index:60;background:var(--cream);overflow:auto;display:none}
+.gate.on{display:block}
+.gate-in{max-width:430px;margin:0 auto;padding:12vh 22px 60px}
+.gate-card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:30px}
+.gate h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;margin:0 0 6px}
+.gate .lead{margin:0 0 22px;font-size:.92rem}
+.gate .field{margin-bottom:16px}
+.demo-note{margin-top:20px;padding:13px 15px;border-radius:10px;background:var(--cream-2);font-size:.78rem;color:var(--ink-soft);line-height:1.55}
+.err{color:#9B3B3B;font-size:.82rem;margin:10px 0 0;display:none}
+.err.on{display:block}
+.pn-in{max-width:1080px;margin:0 auto;padding:30px 22px 70px}
+.pn-top{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.pn-top h2{font-family:var(--serif);font-weight:400;font-size:1.85rem;margin:0}
+.pn-top .sub{margin:4px 0 0;font-size:.85rem;color:var(--ink-soft)}
+.pn-actions{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+.pn-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:20px;align-items:start}
+.pn-card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:22px}
+.pn-card h3{font-family:var(--serif);font-weight:400;font-size:1.15rem;margin:0 0 4px}
+.pn-card .sub{margin:0 0 18px;font-size:.8rem;color:var(--ink-soft)}
+.pj{border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:13px;background:var(--cream)}
+.pj-h{display:flex;align-items:center;gap:12px}
+.pj-sw{width:26px;height:34px;border-radius:3px;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.pj-t{font-family:var(--serif);font-size:1.06rem;line-height:1.25}
+.pj-c{font-size:.78rem;color:var(--ink-soft);margin-top:2px}
+.pj-st{margin-left:auto;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:5px 11px;background:var(--white);color:var(--ink-soft);white-space:nowrap}
+.pj-spec{font-size:.8rem;color:var(--ink-soft);margin:12px 0 0}
+.pj-link{display:flex;gap:8px;align-items:center;margin-top:13px}
+.pj-link input{font-family:var(--mono,ui-monospace,monospace);font-size:.72rem;padding:9px 11px}
+.pj-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.pj-btns .btn{padding:8px 14px;font-size:.78rem}
+.pn-empty{font-size:.86rem;color:var(--ink-soft);padding:18px 0}
+.pn-form .field{margin-bottom:14px}
+.pn-form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ctx{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ink);color:var(--cream);padding:11px 20px;display:none;align-items:center;gap:14px;font-size:.83rem;flex-wrap:wrap}
+.ctx.on{display:flex}
+.ctx b{font-weight:500}
+@media(max-width:860px){.pn-grid{grid-template-columns:1fr}}
+.bar-mid{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.chip{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);border:1px solid var(--line);border-radius:999px;padding:6px 13px;background:var(--white)}
+
+/* start screen */
+.start{max-width:1100px;margin:0 auto;padding:54px 22px 80px}
+.eyebrow{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px}
+.start h1{font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.05}
+.start h1 em{font-style:italic;color:var(--choco)}
+.lead{color:var(--ink-soft);max-width:60ch;margin:18px 0 0}
+.setup{display:grid;grid-template-columns:1.25fr .75fr;gap:30px;margin-top:38px;align-items:start}
+@media(max-width:900px){.setup{grid-template-columns:1fr}}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:0 18px 44px -34px rgba(55,43,37,.4)}
+.field{margin-bottom:22px}
+.field:last-child{margin-bottom:0}
+label.lb{display:block;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:9px}
+.opts{display:flex;flex-wrap:wrap;gap:9px}
+.opt{padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--cream);font-size:.85rem;cursor:pointer;transition:.18s}
+.opt:hover{border-color:var(--ink)}
+.opt.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.dots{display:flex;flex-wrap:wrap;gap:10px}
+.dot-c{width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4),0 4px 12px -5px rgba(55,43,37,.6);transition:.18s;position:relative}
+.dot-c:hover{transform:translateY(-2px)}
+.dot-c[aria-pressed="true"]{box-shadow:inset 0 0 0 2px #fff,0 0 0 2px var(--ink)}
+input[type=text],input[type=email],input[type=tel],input[type=password],textarea,select{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--cream);color:var(--ink);font-family:inherit;font-size:.92rem}
+textarea{min-height:90px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--caramel);outline-offset:1px}
+.hint{font-size:.78rem;color:var(--ink-soft);margin:8px 0 0}
+.preview-cover{border-radius:12px;padding:26px;background:var(--cream-2);display:flex;justify-content:center}
+.mock{width:210px;aspect-ratio:1/1.14;border-radius:5px 10px 10px 5px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff9ef;position:relative;overflow:hidden}
+.mock:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.22),transparent 42%,rgba(0,0,0,.18))}
+.mock b{font-family:var(--serif);font-weight:600;font-size:1.24rem;font-style:italic;position:relative;text-align:center;padding:0 20px;line-height:1.2}
+.mock i{font-style:normal;font-size:.76rem;letter-spacing:.16em;margin-top:8px;position:relative;opacity:.92}
+.mock.foil b,.mock.foil i{color:#F0D9A2;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+@media(max-width:760px){.steps3{grid-template-columns:1fr}}
+.s3{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.s3 b{font-family:var(--serif);font-size:1.7rem;color:var(--caramel);display:block;line-height:1}
+.s3 h3{font-size:1.05rem;margin:8px 0 4px}
+.s3 p{font-size:.88rem;color:var(--ink-soft);margin:0}
+
+/* editor */
+.editor{display:none;height:calc(100vh - 61px);grid-template-columns:236px 1fr 288px}
+.editor.on{display:grid}
+@media(max-width:1180px){.editor.on{grid-template-columns:196px 1fr 250px}}
+@media(max-width:980px){.editor.on{display:block;height:auto}}
+.pane{border-right:1px solid var(--line);background:var(--white);overflow-y:auto;padding:16px}
+.pane.right{border-right:0;border-left:1px solid var(--line)}
+@media(max-width:980px){.pane{border:0;border-bottom:1px solid var(--line);max-height:none}}
+.pane h3{font-size:1rem;margin-bottom:4px}
+.pane .sub{font-size:.76rem;color:var(--ink-soft);margin:0 0 14px}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px 12px;text-align:center;background:var(--cream);cursor:pointer;transition:.18s}
+.drop:hover,.drop.hot{border-color:var(--caramel);background:var(--cream-2)}
+.drop b{display:block;font-family:var(--serif);font-size:1.02rem}
+.drop small{font-size:.74rem;color:var(--ink-soft)}
+.tray{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.th{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--line);cursor:grab;background:var(--cream-2)}
+.th img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.th.sel{outline:2px solid var(--ink);outline-offset:1px}
+.th .used{position:absolute;right:4px;bottom:4px;background:rgba(55,43,37,.82);color:#fff;font-size:.62rem;padding:2px 6px;border-radius:999px}
+.th .fav{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(55,43,37,.55);color:#fff;font-size:.68rem;line-height:1;cursor:pointer;padding:0}
+.th .fav.on{background:var(--gold);color:#fff;display:block!important}
+.th .fav{display:block;opacity:.75}
+.th:hover .fav{opacity:1}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tools button{font-size:.7rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--cream);cursor:pointer;color:var(--ink-soft)}
+.tools button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.th .del{position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;border:0;background:rgba(55,43,37,.75);color:#fff;font-size:.72rem;line-height:1;cursor:pointer;display:block;opacity:.6}
+.th:hover .del{opacity:1}
+
+/* canvas area */
+.stage{overflow-y:auto;padding:22px;background:linear-gradient(180deg,var(--cream) 0%,var(--cream-2) 100%)}
+.stage-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stage-top .who{font-family:var(--serif);font-size:1.3rem}
+.spread{background:var(--white);border-radius:6px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr;margin:0 auto;position:relative;overflow:hidden;max-width:100%}
+.spread:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:16px;transform:translateX(-50%);background:linear-gradient(90deg,rgba(55,43,37,0),rgba(55,43,37,.14),rgba(55,43,37,0));pointer-events:none;z-index:5}
+.page{padding:14px;display:grid;gap:10px}
+.page.cover-page{place-items:center;padding:0}
+.slot{position:relative;background:var(--cream-2);border-radius:4px;overflow:hidden;cursor:pointer;min-height:40px}
+.slot.empty:after{content:"+ zdjęcie";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.76rem;letter-spacing:.06em;color:var(--ink-soft)}
+.slot.hot{outline:2px solid var(--caramel);outline-offset:-2px}
+.slot.sel{outline:2px solid var(--ink);outline-offset:-2px}
+.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform-origin:center}
+.cap{grid-column:1/-1;font-family:var(--serif);font-style:italic;font-size:.95rem;color:var(--ink-soft);text-align:center;min-height:1.3em}
+.pgnum{position:absolute;bottom:6px;font-size:.62rem;letter-spacing:.1em;color:var(--ink-soft)}
+.page:first-child .pgnum{left:14px}
+.page:last-child .pgnum{right:14px}
+.nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.nav .lbl{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);min-width:150px;text-align:center}
+.filmstrip{display:flex;gap:8px;overflow-x:auto;padding:14px 2px 4px;margin-top:8px}
+.fs{flex:0 0 auto;width:96px;border:1px solid var(--line);border-radius:6px;background:var(--white);padding:5px;cursor:pointer}
+.fs.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.fs .mini{display:grid;grid-template-columns:1fr 1fr;gap:2px;aspect-ratio:2/1.1}
+.fs .mini div{background:var(--cream-2);border-radius:1px;background-size:cover;background-position:center}
+.fs span{display:block;text-align:center;font-size:.62rem;letter-spacing:.08em;color:var(--ink-soft);margin-top:4px}
+
+/* right pane */
+.lay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lay{border:1px solid var(--line);border-radius:8px;background:var(--cream);padding:6px;cursor:pointer;transition:.18s}
+.lay:hover{border-color:var(--ink)}
+.lay.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.lay .g{display:grid;gap:3px;aspect-ratio:1/1}
+.lay .g i{background:var(--cream-2);border-radius:2px;display:block}
+.lay small{display:block;text-align:center;font-size:.62rem;color:var(--ink-soft);margin-top:5px;letter-spacing:.06em}
+.ctrl{margin-top:8px}
+.ctrl label{display:flex;justify-content:space-between;font-size:.74rem;color:var(--ink-soft);margin-bottom:4px}
+input[type=range]{width:100%;accent-color:var(--caramel)}
+.divider{height:1px;background:var(--line);margin:18px 0}
+.rows{list-style:none;margin:0;padding:0;font-size:.85rem}
+.rows li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.rows li span:first-child{color:var(--ink-soft)}
+.rows li b{font-weight:600;text-align:right}
+.total{display:flex;align-items:baseline;justify-content:space-between;margin-top:14px}
+.total span{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+.total b{font-family:var(--serif);font-size:1.8rem;font-weight:600}
+.stack{display:grid;gap:8px;margin-top:14px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(35,26,22,.72);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal.on{display:flex}
+.modal-in{background:var(--cream);border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;padding:30px}
+.modal-in h2{font-size:1.6rem}
+.close-x{position:absolute;top:16px;right:20px;background:none;border:0;color:var(--cream);font-size:1.8rem;cursor:pointer;line-height:1}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--cream);padding:12px 22px;border-radius:999px;font-size:.86rem;opacity:0;pointer-events:none;transition:.3s;z-index:300}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{border-top:1px solid var(--line);padding:22px;text-align:center;font-size:.78rem;color:var(--ink-soft)}
+
+@media print{
+  header,.pane,.nav,.filmstrip,.stage-top,footer,.toast,.modal{display:none!important}
+  body{background:#fff}
+  .editor.on{display:block;height:auto}
+  .stage{padding:0;background:#fff;overflow:visible}
+  .spread{box-shadow:none;break-inside:avoid;page-break-after:always;max-width:100%}
+  @page{size:landscape;margin:8mm}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <a class="brand" href="#" onclick="location.reload();return false" aria-label="Lamo — kreator fotoksiążek">
+      <svg width="26" height="30" viewBox="0 0 26 30" fill="none" aria-hidden="true"><rect x="1" y="1" width="24" height="28" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M7 1v28" stroke="currentColor" stroke-width="1.6"/><path d="M12.5 9.5h8M12.5 14h8M12.5 18.5h5" stroke="currentColor" stroke-width="1.2" opacity=".55"/></svg>
+      <span>Lamo<small>Kreator fotoksiążek</small></span>
+    </a>
+    <div class="bar-mid" id="barMid">
+      <span class="chip" id="chipSave" style="display:none">zapisano</span>
+      <span class="chip" id="chipInfo">Krok 1 — ustawienia książki</span>
+      <button class="btn ghost sm" id="goPanel" style="padding:8px 16px;font-size:.78rem">Panel pracowni</button>
+    </div>
+  </div>
+</header>
+
+<!-- --- ekran startowy --- -->
+<section class="start" id="start">
+  <p class="eyebrow">Pracownia introligatorska Lamo</p>
+  <h1>Zaprojektuj swoją <em>fotoksiążkę.</em></h1>
+  <p class="lead">Wgraj własne zdjęcia, ułóż je na rozkładówkach tak, jak chcesz, dobierz okładkę i wyślij gotowy projekt do pracowni. Nie musisz nic instalować — wszystko dzieje się w przeglądarce, a Twoje zdjęcia nie opuszczają Twojego urządzenia.</p>
+
+  <div class="setup">
+    <div class="card">
+      <div class="field">
+        <label class="lb" for="fTitle">Tytuł na okładce</label>
+        <input type="text" id="fTitle" value="Nasza historia" maxlength="42">
+      </div>
+      <div class="field">
+        <label class="lb" for="fSub">Podpis pod tytułem</label>
+        <input type="text" id="fSub" value="2026" maxlength="34">
+        <p class="hint">Data, imiona, miejsce — cokolwiek ma być tłoczone pod tytułem.</p>
+      </div>
+      <div class="field">
+        <label class="lb">Format</label>
+        <div class="opts" id="oFormat"></div>
+      </div>
+      <div class="field">
+        <label class="lb">Liczba rozkładówek</label>
+        <div class="opts" id="oSpreads"></div>
+        <p class="hint">Rozkładówka to dwie sąsiadujące strony. Zawsze możesz dodać kolejne w edytorze.</p>
+      </div>
+      <div class="field">
+        <label class="lb">Materiał okładki</label>
+        <div class="opts" id="oMat"></div>
+      </div>
+      <div class="field">
+        <label class="lb">Kolor okładki</label>
+        <div class="dots" id="oColor"></div>
+      </div>
+      <div class="field">
+        <label class="lb">Tłoczenie</label>
+        <div class="opts" id="oFoil"></div>
+      </div>
+      <button class="btn" id="goEditor" style="margin-top:6px">Przejdź do kreatora →</button>
+    </div>
+
+    <div>
+      <div class="card">
+        <label class="lb">Podgląd okładki</label>
+        <div class="preview-cover"><div class="mock" id="mock"><b id="mockT">Nasza historia</b><i id="mockS">2026</i></div></div>
+        <ul class="rows" style="margin-top:18px" id="startRows"></ul>
+        <div class="total"><span>Cena orientacyjna</span><b id="startPrice">—</b></div>
+        <p class="hint">Ostateczną wycenę pracownia potwierdza po obejrzeniu projektu.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps3">
+    <div class="s3"><b>1</b><h3>Wgraj zdjęcia</h3><p>Przeciągnij pliki z komputera albo wybierz je z galerii telefonu.</p></div>
+    <div class="s3"><b>2</b><h3>Ułóż rozkładówki</h3><p>Wybierz układ strony, wstaw zdjęcia, przybliż je i dopisz podpisy.</p></div>
+    <div class="s3"><b>3</b><h3>Wyślij projekt</h3><p>Pracownia dostaje opis książki, układ stron i listę zdjęć do druku.</p></div>
+  </div>
+</section>
+
+<!-- --- edytor --- -->
+<section class="editor" id="editor">
+  <!-- lewy panel: zdjęcia -->
+  <aside class="pane">
+    <h3>Twoje zdjęcia</h3>
+    <p class="sub" id="trayCount">Brak wgranych zdjęć</p>
+    <div class="drop" id="drop">
+      <b>Wgraj zdjęcia</b>
+      <small>Przeciągnij tutaj lub kliknij</small>
+    </div>
+    <input type="file" id="file" accept="image/*" multiple class="sr-only">
+    <div class="stack" style="margin-top:12px">
+      <button class="btn ghost sm" id="autoFill">Rozłóż automatycznie</button>
+      <button class="btn ghost sm" id="clearAll">Wyczyść wszystkie strony</button>
+    </div>
+    <div class="tools" id="trayTools">
+      <button type="button" id="tHide">Ukryj użyte</button>
+      <button type="button" id="tFav">Tylko ulubione</button>
+      <button type="button" id="tSort">Sortuj: kolejność</button>
+    </div>
+    <div class="tray" id="tray"></div>
+    <p class="hint" id="trayHint">Kliknij zdjęcie, potem miejsce na stronie — albo przeciągnij je myszką.</p>
+  </aside>
+
+  <!-- środek: rozkładówka -->
+  <div class="stage">
+    <div class="stage-top">
+      <div class="who" id="spreadName">Okładka</div>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn ghost sm" id="undo" title="Cofnij ostatnią zmianę">↶ Cofnij</button>
+        <button class="btn ghost sm" id="prev">← Poprzednia</button>
+        <button class="btn ghost sm" id="next">Następna →</button>
+        <button class="btn sm" id="openSend">Wyślij projekt</button>
+      </div>
+    </div>
+    <div id="spreadHost"></div>
+    <div class="nav">
+      <button class="btn ghost sm" id="addSpread">+ Dodaj rozkładówkę</button>
+      <span class="lbl" id="navLbl">—</span>
+      <button class="btn ghost sm" id="delSpread">Usuń tę rozkładówkę</button>
+    </div>
+    <div class="filmstrip" id="film"></div>
+  </div>
+
+  <!-- prawy panel -->
+  <aside class="pane right">
+    <div id="rightBody"></div>
+    <div class="divider"></div>
+    <ul class="rows" id="sumRows"></ul>
+    <div class="total"><span>Cena orientacyjna</span><b id="sumPrice">—</b></div>
+    <div class="stack">
+      <button class="btn ghost sm" id="btnPdf">Zapisz podgląd (PDF)</button>
+      <button class="btn ghost sm" id="btnSave">Zapisz projekt do pliku</button>
+      <button class="btn ghost sm" id="btnLoad">Wczytaj projekt z pliku</button>
+      <input type="file" id="loadFile" accept="application/json" class="sr-only">
+    </div>
+    <p class="hint">Zdjęcia zostają na Twoim urządzeniu. Plik projektu zapisuje układ stron i podpisy, a zdjęcia dołączasz przy wysyłce.</p>
+  </aside>
+</section>
+
+<footer>Lamo — pracownia introligatorska • kreator fotoksiążek • <span id="year"></span></footer>
+
+<!-- modal wysyłki -->
+<div class="modal" id="sendModal">
+  <button class="close-x" id="closeModal" aria-label="Zamknij">×</button>
+  <div class="modal-in">
+    <h2>Wyślij projekt do pracowni</h2>
+    <p class="hint" style="margin:8px 0 20px">Pracownia dostanie opis książki, układ każdej rozkładówki i podpisy. Same pliki zdjęć dołączasz do wiadomości albo przesyłasz linkiem (WeTransfer, Dysk Google).</p>
+    <div class="field"><label class="lb" for="cName">Imię i nazwisko</label><input type="text" id="cName"></div>
+    <div class="field"><label class="lb" for="cMail">E-mail</label><input type="email" id="cMail"></div>
+    <div class="field"><label class="lb" for="cPhone">Telefon (opcjonalnie)</label><input type="tel" id="cPhone"></div>
+    <div class="field"><label class="lb" for="cNote">Uwagi do projektu</label><textarea id="cNote" placeholder="Termin, dedykacja, dodatkowe życzenia…"></textarea></div>
+    <div class="stack">
+      <button class="btn" id="sendMail">Wyślij mailem</button>
+      <button class="btn ghost" id="sendWa">Wyślij przez WhatsApp</button>
+      <button class="btn ghost" id="copyBrief">Kopiuj opis projektu</button>
+    </div>
+  </div>
+</div>
+
+<!-- --- panel pracowni --- -->
+<div class="gate" id="gate" aria-hidden="true">
+
+  <div id="gateLogin">
+    <div class="gate-in">
+      <div class="gate-card">
+        <h2>Panel pracowni</h2>
+        <p class="lead">Zaloguj się, aby zakładać projekty i wysyłać klientom linki do kreatora.</p>
+        <div class="field">
+          <label class="lb" for="glUser">Login</label>
+          <input type="text" id="glUser" autocomplete="username" value="monika" autocapitalize="none" autocorrect="off" spellcheck="false" inputmode="email">
+        </div>
+        <div class="field">
+          <label class="lb" for="glPass">Hasło</label>
+          <input type="password" id="glPass" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="lamo12345">
+        </div>
+        <p class="err" id="glErr">Nieprawidłowy login lub hasło. Login: monika, hasło: lamo12345 — małymi literami, bez odstępów.</p>
+        <div style="display:flex;gap:9px;margin-top:6px">
+          <button class="btn" id="glGo">Zaloguj</button>
+          <button class="btn ghost" id="glBack">Wróć do kreatora</button>
+        </div>
+        <p class="demo-note">Wersja pokazowa. Projekty zapisują się tylko w tej przeglądarce, a logowanie nie chroni danych — pełny panel z bazą działa w wersji uruchamianej w pracowni.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="gatePanel" style="display:none">
+    <div class="pn-in">
+      <div class="pn-top">
+        <div>
+          <h2>Projekty</h2>
+          <p class="sub" id="pnWho">Pracownia Lamo</p>
+        </div>
+        <div class="pn-actions">
+          <button class="btn ghost" id="pnDemo">Wczytaj przykłady</button>
+          <button class="btn ghost" id="pnBack">Kreator</button>
+          <button class="btn ghost" id="pnOut">Wyloguj</button>
+        </div>
+      </div>
+
+      <div class="pn-grid">
+        <div class="pn-card">
+          <h3>Twoje projekty</h3>
+          <p class="sub" id="pnCount">—</p>
+          <div id="pnList"></div>
+        </div>
+
+        <div class="pn-card pn-form">
+          <h3 id="pfHead">Nowy projekt</h3>
+          <p class="sub" id="pfSub">Ustaw album i wyślij klientowi link.</p>
+          <div class="field">
+            <label class="lb" for="pfName">Nazwa projektu</label>
+            <input type="text" id="pfName" placeholder="Chrzest Zosi" maxlength="60">
+          </div>
+          <div class="field">
+            <label class="lb" for="pfClient">Klient</label>
+            <input type="text" id="pfClient" placeholder="Anna Nowak" maxlength="60">
+          </div>
+          <div class="two">
+            <div class="field">
+              <label class="lb" for="pfFormat">Format</label>
+              <select id="pfFormat"></select>
+            </div>
+            <div class="field">
+              <label class="lb" for="pfSpreads">Rozkładówki</label>
+              <select id="pfSpreads"></select>
+            </div>
+          </div>
+          <div class="two">
+            <div class="field">
+              <label class="lb" for="pfMat">Materiał</label>
+              <select id="pfMat"></select>
+            </div>
+            <div class="field">
+              <label class="lb" for="pfFoil">Tłoczenie</label>
+              <select id="pfFoil"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lb">Kolor okładki</label>
+            <div class="dots" id="pfColor"></div>
+          </div>
+          <button class="btn" id="pfGo" style="width:100%">Załóż projekt i utwórz link</button>
+          <button class="btn ghost" id="pfCancel" style="width:100%;margin-top:9px;display:none">Anuluj edycję</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ctx" id="ctx">
+  <span>Projekt <b id="ctxName">—</b> · przygotowany przez Pracownię Lamo<span id="ctxFor"></span></span>
+  <button class="btn ghost sm" id="ctxClose" style="margin-left:auto;padding:7px 14px;font-size:.76rem;color:var(--cream);border-color:rgba(247,241,233,.4)">Ukryj</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* --- dane --- */
+const FORMATS = [
+  {id:'20', n:'20 × 20 cm', ratio:1, base:189},
+  {id:'25', n:'25 × 25 cm', ratio:1, base:249},
+  {id:'30', n:'30 × 30 cm', ratio:1, base:329},
+  {id:'a4', n:'A4 poziomo', ratio:1.414, base:279}
+];
+const SPREADS = [5,10,15,20];
+const MATERIALS = [{id:'aksamit',n:'Aksamit',p:45},{id:'len',n:'Len',p:20},{id:'plotno',n:'Płótno',p:0},{id:'ekoskora',n:'Ekoskóra',p:35}];
+const COLORS = [
+  {n:'Pudrowy róż',c:'#C39199'},{n:'Szałwia',c:'#8E9B87'},{n:'Czekolada',c:'#5A423A'},
+  {n:'Butelkowa zieleń',c:'#3C5B4B'},{n:'Dymny błękit',c:'#7F93A8'},{n:'Karmel',c:'#B08968'},
+  {n:'Ecru',c:'#D8CBB6'},{n:'Bordo',c:'#7E3B41'}
+];
+const FOILS = [{id:'zlote',n:'Złote',p:25},{id:'srebrne',n:'Srebrne',p:25},{id:'bezbarwne',n:'Bezbarwne',p:15},{id:'brak',n:'Bez tłoczenia',p:0}];
+const PER_SPREAD = 12;
+
+/* układy stron: liczba slotów + siatka CSS */
+const LAYOUTS = {
+  full:  {n:'1 duże',   slots:1, cols:'1fr',        rows:'1fr'},
+  two_v: {n:'2 obok',   slots:2, cols:'1fr 1fr',    rows:'1fr'},
+  two_h: {n:'2 nad',    slots:2, cols:'1fr',        rows:'1fr 1fr'},
+  three: {n:'1 + 2',    slots:3, cols:'1fr 1fr',    rows:'1.5fr 1fr', areas:'"a a" "b c"'},
+  four:  {n:'4 w kratę',slots:4, cols:'1fr 1fr',    rows:'1fr 1fr'},
+  six:   {n:'6 małych', slots:6, cols:'1fr 1fr 1fr',rows:'1fr 1fr'},
+  frame: {n:'1 w ramce',slots:1, cols:'1fr',        rows:'1fr', pad:'12%'},
+  blank: {n:'Puste',    slots:0, cols:'1fr',        rows:'1fr'}
+};
+const LAYOUT_KEYS = Object.keys(LAYOUTS);
+
+/* --- stan --- */
+const P = {
+  title:'Nasza historia', sub:'2026',
+  format:FORMATS[1], spreads:SPREADS[1], material:MATERIALS[0], color:COLORS[0], foil:FOILS[0],
+  gap:10, pad:14, pageBg:'#FFFCF8',
+  pages:[], view:0  /* 0 = okładka, 1..n = rozkładówki */
+};
+const PHOTOS = [];           /* {id,name,url,w,h,fav} */
+let photoSeq = 0, selPhoto = null, selSlot = null;
+let trayHide = false, trayFav = false, traySort = 0;   /* 0 kolejność, 1 nazwa */
+const SORTS = ['kolejność','nazwa'];
+
+/* ---- historia zmian (cofnij) ---- */
+const HIST = [];
+function snapState(){ return JSON.stringify({pages:P.pages, gap:P.gap, pageBg:P.pageBg, title:P.title, sub:P.sub, view:P.view}); }
+function snapshot(){ HIST.push(snapState()); if(HIST.length>40) HIST.shift(); const u=document.getElementById('undo'); if(u) u.disabled=false; }
+function undo(){
+  if(!HIST.length) return;
+  const d=JSON.parse(HIST.pop());
+  P.pages=d.pages; P.gap=d.gap; P.pageBg=d.pageBg; P.title=d.title; P.sub=d.sub;
+  P.view=Math.min(d.view, P.pages.length);
+  selSlot=null; renderAll(); autosave();
+  const u=document.getElementById('undo'); if(u) u.disabled=!HIST.length;
+  toast('Cofnięto zmianę');
+}
+
+/* ---- autozapis (bez plików zdjęć) ---- */
+function autosave(){
+  try{
+    localStorage.setItem('lamo_kreator', projectJson());
+    const c=document.getElementById('chipSave');
+    if(c){ c.style.display=''; c.textContent='zapisano '+new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'}); }
+  }catch(e){}
+}
+
+function newPage(){ return {layout:'two_v', slots:[null,null], caption:''}; }
+function newSpread(){ return {L:newPage(), R:newPage()}; }
+function buildSpreads(n){ P.pages = Array.from({length:n},()=>newSpread()); }
+
+/* --- pomocnicze --- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('on'),2600); }
+function photoById(id){ return PHOTOS.find(p=>p.id===id); }
+function usedCount(id){ let k=0; P.pages.forEach(s=>['L','R'].forEach(side=>s[side].slots.forEach(sl=>{ if(sl&&sl.photo===id) k++; }))); return k; }
+function filledSlots(){ let k=0; P.pages.forEach(s=>['L','R'].forEach(side=>s[side].slots.forEach(sl=>{ if(sl&&sl.photo) k++; }))); return k; }
+function price(){
+  return P.format.base + P.material.p + P.foil.p + Math.max(0,P.pages.length-5)*PER_SPREAD;
+}
+function fmtPrice(v){ return v.toLocaleString('pl-PL') + ' zł'; }
+
+/* --- ekran startowy --- */
+function pillHtml(list, curId, key){
+  return list.map(o=>`<button type="button" class="opt${(o.id||o)===curId?' on':''}" data-k="${key}" data-v="${o.id||o}">${o.n||(o+' rozkładówek')}</button>`).join('');
+}
+function renderStart(){
+  $('#oFormat').innerHTML  = pillHtml(FORMATS, P.format.id, 'format');
+  $('#oSpreads').innerHTML = pillHtml(SPREADS, P.spreads, 'spreads');
+  $('#oMat').innerHTML     = pillHtml(MATERIALS, P.material.id, 'material');
+  $('#oFoil').innerHTML    = pillHtml(FOILS, P.foil.id, 'foil');
+  $('#oColor').innerHTML    = COLORS.map(c=>`<button type="button" class="dot-c" aria-pressed="${c.n===P.color.n}" data-c="${c.n}" style="background:${c.c}" title="${c.n}"><span class="sr-only">${c.n}</span></button>`).join('');
+  const m=$('#mock');
+  m.style.background = P.color.c;
+  m.classList.toggle('foil', P.foil.id!=='brak');
+  $('#mockT').textContent = P.title || 'Twój tytuł';
+  $('#mockS').textContent = P.sub;
+  const rows=[['Format',P.format.n],['Rozkładówki',P.spreads+' ('+(P.spreads*2)+' stron)'],['Okładka',P.material.n+', '+P.color.n],['Tłoczenie',P.foil.n]];
+  $('#startRows').innerHTML = rows.map(r=>`<li><span>${r[0]}</span><b>${r[1]}</b></li>`).join('');
+  const pr = P.format.base + P.material.p + P.foil.p + Math.max(0,P.spreads-5)*PER_SPREAD;
+  $('#startPrice').textContent = fmtPrice(pr);
+}
+document.addEventListener('click', e=>{
+  const o=e.target.closest('.opt'); 
+  if(o){
+    const k=o.dataset.k, v=o.dataset.v;
+    if(k==='format') P.format = FORMATS.find(f=>f.id===v);
+    if(k==='spreads') P.spreads = +v;
+    if(k==='material') P.material = MATERIALS.find(m=>m.id===v);
+    if(k==='foil') P.foil = FOILS.find(f=>f.id===v);
+    renderStart(); if($('#editor').classList.contains('on')) renderAll();
+    return;
+  }
+  const d=e.target.closest('.dot-c');
+  if(d && !d.classList.contains('bgdot')){ P.color = COLORS.find(c=>c.n===d.dataset.c) || P.color; renderStart(); if($('#editor').classList.contains('on')) renderAll(); }
+});
+$('#fTitle').addEventListener('input', e=>{ P.title=e.target.value; renderStart(); if($('#editor').classList.contains('on')) renderAll(); });
+$('#fSub').addEventListener('input', e=>{ P.sub=e.target.value; renderStart(); if($('#editor').classList.contains('on')) renderAll(); });
+
+$('#goEditor').addEventListener('click', ()=>{
+  buildSpreads(P.spreads);
+  P.view = 0;
+  $('#start').style.display='none';
+  $('#editor').classList.add('on');
+  $('#chipInfo').textContent = 'Krok 2 — układanie stron';
+  renderAll();
+  window.scrollTo({top:0});
+});
+
+/* --- wgrywanie zdjęć --- */
+$('#drop').addEventListener('click', ()=> $('#file').click());
+$('#file').addEventListener('change', e=> addFiles(e.target.files));
+['dragenter','dragover'].forEach(ev=>$('#drop').addEventListener(ev, e=>{e.preventDefault(); $('#drop').classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>$('#drop').addEventListener(ev, e=>{e.preventDefault(); $('#drop').classList.remove('hot');}));
+$('#drop').addEventListener('drop', e=>{ if(e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+function addFiles(files){
+  const list=[...files].filter(f=>f.type.startsWith('image/'));
+  if(!list.length) return;
+  list.forEach(f=>{
+    const id='p'+(++photoSeq);
+    const url=URL.createObjectURL(f);
+    const rec={id,name:f.name,url,w:0,h:0};
+    PHOTOS.push(rec);
+    const im=new Image(); im.onload=()=>{rec.w=im.naturalWidth; rec.h=im.naturalHeight; renderTray();}; im.src=url;
+  });
+  renderTray();
+  toast(list.length===1 ? 'Dodano 1 zdjęcie' : 'Dodano '+list.length+' zdjęć');
+}
+function renderTray(){
+  let list=[...PHOTOS];
+  if(trayHide) list=list.filter(p=>usedCount(p.id)===0);
+  if(trayFav)  list=list.filter(p=>p.fav);
+  if(traySort===1) list.sort((a,b)=>a.name.localeCompare(b.name,'pl'));
+  $('#tray').innerHTML = list.map(p=>{
+    const u=usedCount(p.id);
+    return `<div class="th${selPhoto===p.id?' sel':''}" data-p="${p.id}" draggable="true" title="${p.name}">
+      <img src="${p.url}" alt="${p.name}">
+      ${u?`<span class="used">${u}×</span>`:''}
+      <button class="fav${p.fav?' on':''}" data-fav="${p.id}" title="Ulubione">★</button>
+      <button class="del" data-del="${p.id}" title="Usuń zdjęcie">×</button>
+    </div>`;
+  }).join('') || '<p class="hint" style="grid-column:1/-1">Brak zdjęć przy tym filtrze.</p>';
+  $('#trayCount').textContent = PHOTOS.length ? 'Użyte miejsca: '+filledSlots()+' • zdjęć: '+PHOTOS.length : 'Brak wgranych zdjęć';
+  const th=$('#tHide'), tf=$('#tFav'), ts=$('#tSort');
+  if(th){ th.classList.toggle('on',trayHide); tf.classList.toggle('on',trayFav); ts.textContent='Sortuj: '+SORTS[traySort]; }
+}
+$('#tHide').addEventListener('click',()=>{ trayHide=!trayHide; renderTray(); });
+$('#tFav').addEventListener('click',()=>{ trayFav=!trayFav; renderTray(); });
+$('#tSort').addEventListener('click',()=>{ traySort=(traySort+1)%SORTS.length; renderTray(); });
+$('#tray').addEventListener('click', e=>{
+  const fv=e.target.closest('[data-fav]');
+  if(fv){ const p=photoById(fv.dataset.fav); p.fav=!p.fav; renderTray(); return; }
+  const del=e.target.closest('[data-del]');
+  if(del){
+    snapshot();
+    const id=del.dataset.del;
+    PHOTOS.splice(PHOTOS.findIndex(p=>p.id===id),1);
+    P.pages.forEach(s=>['L','R'].forEach(side=>s[side].slots.forEach((sl,i)=>{ if(sl&&sl.photo===id) s[side].slots[i]=null; })));
+    if(selPhoto===id) selPhoto=null;
+    renderAll(); return;
+  }
+  const th=e.target.closest('.th');
+  if(th){ selPhoto = selPhoto===th.dataset.p ? null : th.dataset.p; renderTray(); }
+});
+$('#tray').addEventListener('dragstart', e=>{
+  const th=e.target.closest('.th'); if(!th) return;
+  e.dataTransfer.setData('text/plain', th.dataset.p);
+  e.dataTransfer.effectAllowed='copy';
+});
+
+/* --- render rozkładówki --- */
+function pageEl(page, side, idx){
+  const L=LAYOUTS[page.layout];
+  const el=document.createElement('div');
+  el.className='page';
+  el.style.background=P.pageBg;
+  el.style.gap=P.gap+'px';
+  el.style.padding=P.pad+'px';
+  el.style.gridTemplateColumns=L.cols;
+  el.style.gridTemplateRows=L.rows+' auto';
+  if(L.areas) el.style.gridTemplateAreas=L.areas+' "cap cap"';
+  if(L.pad) el.style.padding='calc('+P.pad+'px + '+L.pad+')';
+  for(let i=0;i<L.slots;i++){
+    const sl=page.slots[i];
+    const d=document.createElement('div');
+    d.className='slot'+(sl&&sl.photo?'':' empty')+(selSlot&&selSlot.side===side&&selSlot.i===i&&selSlot.sp===P.view?' sel':'');
+    d.dataset.side=side; d.dataset.i=i;
+    if(sl&&sl.photo) d.draggable=true;
+    if(L.areas) d.style.gridArea=['a','b','c'][i];
+    if(sl&&sl.photo){
+      const ph=photoById(sl.photo);
+      if(ph){
+        const im=document.createElement('img');
+        im.src=ph.url; im.alt=ph.name;
+        im.style.transform=`scale(${sl.zoom}) translate(${sl.x}%, ${sl.y}%)`;
+        d.appendChild(im);
+      }
+    }
+    el.appendChild(d);
+  }
+  const cap=document.createElement('div');
+  cap.className='cap'; cap.textContent=page.caption||'';
+  if(L.areas) cap.style.gridArea='cap';
+  el.appendChild(cap);
+  const num=document.createElement('span');
+  num.className='pgnum'; num.textContent='str. '+idx;
+  el.appendChild(num);
+  return el;
+}
+function renderSpread(){
+  const host=$('#spreadHost'); host.innerHTML='';
+  const sp=document.createElement('div');
+  sp.className='spread';
+  const w=Math.min(920, (window.innerWidth<980? window.innerWidth-60 : 920));
+  sp.style.width=w+'px';
+  sp.style.height=(w/2/P.format.ratio)+'px';
+  if(P.view===0){
+    sp.style.gridTemplateColumns='1fr';
+    sp.style.height=(w*0.62/P.format.ratio)+'px';
+    const c=document.createElement('div');
+    c.className='page cover-page';
+    c.style.background=P.color.c;
+    c.innerHTML=`<div style="text-align:center;color:${P.foil.id==='brak'?'rgba(255,252,248,.9)':'#F0D9A2'};padding:24px">
+      <div style="font-family:var(--serif);font-style:italic;font-size:clamp(1.5rem,3.4vw,2.4rem);line-height:1.15">${(P.title||'Twój tytuł').replace(/</g,'&lt;')}</div>
+      <div style="font-size:.82rem;letter-spacing:.2em;margin-top:12px">${P.sub.replace(/</g,'&lt;')}</div>
+      <div style="font-size:.7rem;letter-spacing:.18em;margin-top:26px;opacity:.75;text-transform:uppercase">${P.material.n} • ${P.foil.n}</div>
+    </div>`;
+    sp.appendChild(c);
+    sp.style.boxShadow='var(--shadow)';
+  } else {
+    const s=P.pages[P.view-1];
+    sp.appendChild(pageEl(s.L,'L',(P.view-1)*2+1));
+    sp.appendChild(pageEl(s.R,'R',(P.view-1)*2+2));
+  }
+  host.appendChild(sp);
+  $('#spreadName').textContent = P.view===0 ? 'Okładka' : 'Rozkładówka '+P.view+' z '+P.pages.length;
+  $('#navLbl').textContent = P.view===0 ? 'okładka' : 'strony '+((P.view-1)*2+1)+'–'+((P.view-1)*2+2);
+  $('#prev').disabled = P.view===0;
+  $('#next').disabled = P.view===P.pages.length;
+  $('#delSpread').disabled = P.view===0 || P.pages.length<=1;
+}
+
+/* klik / drop w slot */
+$('#spreadHost').addEventListener('click', e=>{
+  const s=e.target.closest('.slot'); if(!s) return;
+  const side=s.dataset.side, i=+s.dataset.i;
+  const page=P.pages[P.view-1][side];
+  if(selPhoto){
+    snapshot();
+    page.slots[i]={photo:selPhoto, zoom:1, x:0, y:0};
+    selPhoto=null; selSlot={sp:P.view, side, i};
+    renderAll(); return;
+  }
+  selSlot = (selSlot&&selSlot.sp===P.view&&selSlot.side===side&&selSlot.i===i) ? null : {sp:P.view, side, i};
+  renderAll();
+});
+$('#spreadHost').addEventListener('dragstart', e=>{
+  const s=e.target.closest('.slot'); if(!s||!s.draggable) return;
+  e.dataTransfer.setData('text/plain','slot:'+s.dataset.side+':'+s.dataset.i);
+  e.dataTransfer.effectAllowed='move';
+});
+$('#spreadHost').addEventListener('dragover', e=>{
+  const s=e.target.closest('.slot'); if(!s) return;
+  e.preventDefault(); s.classList.add('hot');
+});
+$('#spreadHost').addEventListener('dragleave', e=>{
+  const s=e.target.closest('.slot'); if(s) s.classList.remove('hot');
+});
+$('#spreadHost').addEventListener('drop', e=>{
+  const s=e.target.closest('.slot'); if(!s) return;
+  e.preventDefault();
+  s.classList.remove('hot');
+  const data=e.dataTransfer.getData('text/plain');
+  const side=s.dataset.side, i=+s.dataset.i;
+  const sp=P.pages[P.view-1];
+  if(data.startsWith('slot:')){
+    const [,fs,fi]=data.split(':');
+    if(fs===side && +fi===i) return;
+    snapshot();
+    const a=sp[fs].slots[+fi], b=sp[side].slots[i];
+    sp[side].slots[i]=a; sp[fs].slots[+fi]=b;   /* zamiana miejscami */
+    selSlot={sp:P.view, side, i};
+    renderAll(); autosave(); return;
+  }
+  if(!photoById(data)) return;
+  snapshot();
+  sp[side].slots[i]={photo:data, zoom:1, x:0, y:0};
+  selSlot={sp:P.view, side, i};
+  renderAll(); autosave();
+});
+
+/* --- prawy panel --- */
+function layIcon(key){
+  const L=LAYOUTS[key];
+  let inner='';
+  if(key==='three') inner='<i style="grid-area:a"></i><i style="grid-area:b"></i><i style="grid-area:c"></i>';
+  else inner=Array.from({length:Math.max(L.slots,1)},()=>'<i></i>').join('');
+  const style=`grid-template-columns:${L.cols};grid-template-rows:${L.rows}${L.areas?';grid-template-areas:'+L.areas:''}`;
+  return `<button type="button" class="lay${''}" data-lay="${key}"><div class="g" style="${style}">${inner}</div><small>${L.n}</small></button>`;
+}
+function renderRight(){
+  const b=$('#rightBody');
+  if(P.view===0){
+    b.innerHTML=`<h3>Okładka</h3><p class="sub">Tytuł, materiał i kolor zmienisz też tutaj.</p>
+      <div class="field"><label class="lb" for="eTitle">Tytuł</label><input type="text" id="eTitle" value="${P.title.replace(/"/g,'&quot;')}" maxlength="42"></div>
+      <div class="field"><label class="lb" for="eSub">Podpis</label><input type="text" id="eSub" value="${P.sub.replace(/"/g,'&quot;')}" maxlength="34"></div>
+      <div class="field"><label class="lb">Materiał</label><div class="opts">${MATERIALS.map(m=>`<button type="button" class="opt${m.id===P.material.id?' on':''}" data-k="material" data-v="${m.id}">${m.n}</button>`).join('')}</div></div>
+      <div class="field"><label class="lb">Kolor</label><div class="dots">${COLORS.map(c=>`<button type="button" class="dot-c" aria-pressed="${c.n===P.color.n}" data-c="${c.n}" style="background:${c.c}" title="${c.n}"><span class="sr-only">${c.n}</span></button>`).join('')}</div></div>
+      <div class="field"><label class="lb">Tłoczenie</label><div class="opts">${FOILS.map(f=>`<button type="button" class="opt${f.id===P.foil.id?' on':''}" data-k="foil" data-v="${f.id}">${f.n}</button>`).join('')}</div></div>`;
+    $('#eTitle').addEventListener('input', e=>{P.title=e.target.value; renderSpread(); renderFilm();});
+    $('#eSub').addEventListener('input', e=>{P.sub=e.target.value; renderSpread();});
+    return;
+  }
+  const sideSel = selSlot && selSlot.sp===P.view ? selSlot.side : 'L';
+  const page=P.pages[P.view-1][sideSel];
+  const sl = selSlot && selSlot.sp===P.view ? page.slots[selSlot.i] : null;
+  b.innerHTML=`
+    <h3>Strona ${sideSel==='L'?'lewa':'prawa'}</h3>
+    <p class="sub">Wybierz układ, wstaw zdjęcia i dopisz podpis.</p>
+    <div class="opts" style="margin-bottom:12px">
+      <button type="button" class="opt${sideSel==='L'?' on':''}" data-side="L">Lewa</button>
+      <button type="button" class="opt${sideSel==='R'?' on':''}" data-side="R">Prawa</button>
+    </div>
+    <label class="lb">Układ strony</label>
+    <div class="lay-grid" id="layGrid">${LAYOUT_KEYS.map(k=>layIcon(k).replace('class="lay"','class="lay'+(k===page.layout?' on':'')+'"')).join('')}</div>
+    <div class="field" style="margin-top:16px"><label class="lb" for="capIn">Podpis pod zdjęciami</label><input type="text" id="capIn" value="${(page.caption||'').replace(/"/g,'&quot;')}" maxlength="70" placeholder="np. Pierwszy spacer, maj 2026"></div>
+    <div class="divider"></div>
+    <label class="lb">Wygląd wszystkich stron</label>
+    <div class="ctrl"><label><span>Odstęp między zdjęciami</span><span id="gapVal">${P.gap} px</span></label><input type="range" id="gapIn" min="0" max="26" step="1" value="${P.gap}"></div>
+    <div class="ctrl"><label><span>Margines strony</span><span id="padVal">${P.pad} px</span></label><input type="range" id="padIn" min="0" max="40" step="1" value="${P.pad}"></div>
+    <label class="lb" style="margin-top:12px">Tło strony</label>
+    <div class="dots">${['#FFFCF8','#F7F1E9','#EFE5D9','#E4DACB','#372B25','#5A423A'].map(c=>`<button type="button" class="dot-c bgdot" data-bg="${c}" aria-pressed="${c===P.pageBg}" style="background:${c}" title="Tło ${c}"><span class="sr-only">tło ${c}</span></button>`).join('')}</div>
+    ${sl&&sl.photo?`
+      <div class="divider"></div>
+      <label class="lb">Wybrane zdjęcie</label>
+      <div class="ctrl"><label><span>Przybliżenie</span><span>${sl.zoom.toFixed(2)}×</span></label><input type="range" id="rZoom" min="1" max="2.6" step="0.02" value="${sl.zoom}"></div>
+      <div class="ctrl"><label><span>Przesuń w poziomie</span><span>${sl.x}%</span></label><input type="range" id="rX" min="-30" max="30" step="1" value="${sl.x}"></div>
+      <div class="ctrl"><label><span>Przesuń w pionie</span><span>${sl.y}%</span></label><input type="range" id="rY" min="-30" max="30" step="1" value="${sl.y}"></div>
+      <div class="stack"><button class="btn ghost sm" id="slotClear">Usuń zdjęcie z tego miejsca</button></div>
+    `:`<p class="hint" style="margin-top:14px">Kliknij miejsce na stronie, żeby przybliżyć i przesunąć zdjęcie.</p>`}
+  `;
+  $$('#rightBody .opt[data-side]').forEach(btn=>btn.addEventListener('click',()=>{
+    selSlot={sp:P.view, side:btn.dataset.side, i:-1}; renderAll();
+  }));
+  $('#gapIn').addEventListener('input', e=>{ P.gap=+e.target.value; $('#gapVal').textContent=P.gap+' px'; renderSpread(); });
+  $('#padIn').addEventListener('input', e=>{ P.pad=+e.target.value; $('#padVal').textContent=P.pad+' px'; renderSpread(); });
+  $$('#rightBody .bgdot').forEach(b=>b.addEventListener('click',()=>{ snapshot(); P.pageBg=b.dataset.bg; renderAll(); autosave(); }));
+  $('#layGrid').addEventListener('click', e=>{
+    const l=e.target.closest('.lay'); if(!l) return;
+    snapshot();
+    const key=l.dataset.lay, pg=P.pages[P.view-1][sideSel];
+    const old=pg.slots.filter(Boolean);
+    pg.layout=key;
+    pg.slots=Array.from({length:LAYOUTS[key].slots},(_,i)=>old[i]||null);
+    renderAll();
+  });
+  $('#capIn').addEventListener('input', e=>{ P.pages[P.view-1][sideSel].caption=e.target.value; renderSpread(); });
+  if(sl&&sl.photo){
+    const upd=(k,v)=>{ sl[k]=v; renderSpread(); renderFilm(); const lab=$('#rZoom').parentElement.querySelector('span:last-child'); if(k==='zoom'&&lab) lab.textContent=sl.zoom.toFixed(2)+'×'; };
+    $('#rZoom').addEventListener('input', e=>upd('zoom', +e.target.value));
+    $('#rX').addEventListener('input', e=>{ sl.x=+e.target.value; renderSpread(); });
+    $('#rY').addEventListener('input', e=>{ sl.y=+e.target.value; renderSpread(); });
+    $('#slotClear').addEventListener('click', ()=>{ snapshot(); P.pages[P.view-1][sideSel].slots[selSlot.i]=null; renderAll(); });
+  }
+}
+function renderSummary(){
+  const rows=[
+    ['Format',P.format.n],
+    ['Rozkładówki',P.pages.length+' ('+(P.pages.length*2)+' stron)'],
+    ['Okładka',P.material.n+', '+P.color.n],
+    ['Tłoczenie',P.foil.n],
+    ['Zdjęcia w projekcie',filledSlots()+' z '+PHOTOS.length+' wgranych']
+  ];
+  $('#sumRows').innerHTML = rows.map(r=>`<li><span>${r[0]}</span><b>${r[1]}</b></li>`).join('');
+  $('#sumPrice').textContent = fmtPrice(price());
+}
+function renderFilm(){
+  const items=[];
+  items.push(`<div class="fs${P.view===0?' on':''}" data-v="0"><div class="mini" style="grid-template-columns:1fr"><div style="background:${P.color.c}"></div></div><span>okładka</span></div>`);
+  P.pages.forEach((s,i)=>{
+    const cells=['L','R'].map(side=>{
+      const first=s[side].slots.find(x=>x&&x.photo);
+      const ph=first?photoById(first.photo):null;
+      return `<div style="${ph?`background-image:url('${ph.url}')`:''}"></div>`;
+    }).join('');
+    items.push(`<div class="fs${P.view===i+1?' on':''}" data-v="${i+1}"><div class="mini">${cells}</div><span>${i+1}</span></div>`);
+  });
+  $('#film').innerHTML=items.join('');
+}
+$('#film').addEventListener('click', e=>{
+  const f=e.target.closest('.fs'); if(!f) return;
+  P.view=+f.dataset.v; selSlot=null; renderAll();
+});
+
+function renderAll(){ renderSpread(); renderRight(); renderSummary(); renderFilm(); renderTray(); renderStart(); const u=document.getElementById('undo'); if(u) u.disabled=!HIST.length; autosave(); }
+
+/* --- nawigacja i strony --- */
+$('#undo').addEventListener('click', undo);
+$('#undo').disabled=true;
+$('#prev').addEventListener('click',()=>{ if(P.view>0){P.view--; selSlot=null; renderAll();} });
+$('#next').addEventListener('click',()=>{ if(P.view<P.pages.length){P.view++; selSlot=null; renderAll();} });
+$('#addSpread').addEventListener('click',()=>{ snapshot(); P.pages.push(newSpread()); P.view=P.pages.length; selSlot=null; renderAll(); toast('Dodano rozkładówkę'); });
+$('#delSpread').addEventListener('click',()=>{
+  if(P.view===0||P.pages.length<=1) return;
+  snapshot();
+  P.pages.splice(P.view-1,1); P.view=Math.min(P.view,P.pages.length); selSlot=null; renderAll(); toast('Rozkładówka usunięta');
+});
+$('#clearAll').addEventListener('click',()=>{
+  snapshot();
+  P.pages.forEach(s=>['L','R'].forEach(side=>{ s[side].slots=s[side].slots.map(()=>null); s[side].caption=''; }));
+  selSlot=null; renderAll(); toast('Strony wyczyszczone');
+});
+$('#autoFill').addEventListener('click',()=>{
+  if(!PHOTOS.length){ toast('Najpierw wgraj zdjęcia'); return; }
+  snapshot();
+  let q=[...PHOTOS];
+  P.pages.forEach(s=>['L','R'].forEach(side=>{
+    const pg=s[side];
+    pg.slots=pg.slots.map(()=>{
+      if(!q.length) return null;
+      const ph=q.shift();
+      return {photo:ph.id, zoom:1, x:0, y:0};
+    });
+  }));
+  if(q.length){
+    while(q.length){
+      const s=newSpread(); s.L.layout='two_v'; s.R.layout='two_v';
+      s.L.slots=[q.shift()||null,q.shift()||null].map(p=>p?{photo:p.id,zoom:1,x:0,y:0}:null);
+      s.R.slots=[q.shift()||null,q.shift()||null].map(p=>p?{photo:p.id,zoom:1,x:0,y:0}:null);
+      P.pages.push(s);
+    }
+  }
+  P.view=1; selSlot=null; renderAll(); toast('Zdjęcia rozłożone na stronach');
+});
+window.addEventListener('resize',()=>{ if($('#editor').classList.contains('on')) renderSpread(); });
+
+/* --- zapis / wczytanie / PDF --- */
+function projectJson(){
+  return JSON.stringify({
+    v:1, title:P.title, sub:P.sub, format:P.format.id, material:P.material.id,
+    color:P.color.n, foil:P.foil.id, gap:P.gap, pad:P.pad, pageBg:P.pageBg,
+    pages:P.pages.map(s=>({L:{layout:s.L.layout,caption:s.L.caption,slots:s.L.slots.map(x=>x?{photo:photoById(x.photo)?photoById(x.photo).name:null,zoom:x.zoom,x:x.x,y:x.y}:null)},
+                            R:{layout:s.R.layout,caption:s.R.caption,slots:s.R.slots.map(x=>x?{photo:photoById(x.photo)?photoById(x.photo).name:null,zoom:x.zoom,x:x.x,y:x.y}:null)}})),
+    photos:PHOTOS.map(p=>p.name)
+  },null,2);
+}
+$('#btnSave').addEventListener('click',()=>{
+  const blob=new Blob([projectJson()],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='fotoksiazka-'+(P.title||'projekt').toLowerCase().replace(/[^a-z0-9ąćęłńóśźż]+/gi,'-')+'.json';
+  a.click();
+  toast('Projekt zapisany do pliku');
+});
+$('#btnLoad').addEventListener('click',()=>$('#loadFile').click());
+$('#loadFile').addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      P.title=d.title||P.title; P.sub=d.sub||'';
+      P.format=FORMATS.find(x=>x.id===d.format)||P.format;
+      P.material=MATERIALS.find(x=>x.id===d.material)||P.material;
+      P.color=COLORS.find(x=>x.n===d.color)||P.color;
+      P.foil=FOILS.find(x=>x.id===d.foil)||P.foil;
+      if(typeof d.gap==='number') P.gap=d.gap;
+      if(typeof d.pad==='number') P.pad=d.pad;
+      if(d.pageBg) P.pageBg=d.pageBg;
+      P.pages=(d.pages||[]).map(s=>({
+        L:{layout:s.L.layout,caption:s.L.caption||'',slots:s.L.slots.map(x=>{ if(!x)return null; const ph=PHOTOS.find(p=>p.name===x.photo); return ph?{photo:ph.id,zoom:x.zoom||1,x:x.x||0,y:x.y||0}:null; })},
+        R:{layout:s.R.layout,caption:s.R.caption||'',slots:s.R.slots.map(x=>{ if(!x)return null; const ph=PHOTOS.find(p=>p.name===x.photo); return ph?{photo:ph.id,zoom:x.zoom||1,x:x.x||0,y:x.y||0}:null; })}
+      }));
+      if(!P.pages.length) buildSpreads(5);
+      P.view=0; selSlot=null;
+      $('#start').style.display='none'; $('#editor').classList.add('on');
+      renderAll();
+      toast('Projekt wczytany. Wgraj te same zdjęcia, aby wróciły na strony.');
+    }catch(err){ toast('Nie udało się wczytać pliku'); }
+  };
+  r.readAsText(f);
+});
+$('#btnPdf').addEventListener('click',()=>window.print());
+
+/* --- wysyłka --- */
+function brief(){
+  const L=[];
+  L.push('PROJEKT FOTOKSIĄŻKI — LAMO');
+  L.push('Tytuł na okładce: '+(P.title||'—')+(P.sub?' / '+P.sub:''));
+  L.push('Format: '+P.format.n);
+  L.push('Okładka: '+P.material.n+', '+P.color.n+', tłoczenie: '+P.foil.n);
+  L.push('Rozkładówki: '+P.pages.length+' ('+(P.pages.length*2)+' stron)');
+  L.push('Zdjęć wgranych: '+PHOTOS.length+', użytych miejsc: '+filledSlots());
+  L.push('Cena orientacyjna: '+fmtPrice(price()));
+  L.push('');
+  L.push('UKŁAD STRON:');
+  P.pages.forEach((s,i)=>{
+    ['L','R'].forEach((side,k)=>{
+      const pg=s[side];
+      const names=pg.slots.map(x=>x&&photoById(x.photo)?photoById(x.photo).name:'—').join(', ');
+      L.push('str. '+(i*2+1+k)+' — układ: '+LAYOUTS[pg.layout].n+(pg.caption?' — podpis: "'+pg.caption+'"':'')+' — zdjęcia: '+(names||'brak'));
+    });
+  });
+  const n=$('#cName').value.trim(), m=$('#cMail').value.trim(), t=$('#cPhone').value.trim(), u=$('#cNote').value.trim();
+  if(n||m||t||u){
+    L.push('');
+    L.push('KONTAKT:');
+    if(n) L.push('Imię i nazwisko: '+n);
+    if(m) L.push('E-mail: '+m);
+    if(t) L.push('Telefon: '+t);
+    if(u) L.push('Uwagi: '+u);
+  }
+  return L.join('\n');
+}
+$('#openSend').addEventListener('click',()=>$('#sendModal').classList.add('on'));
+$('#closeModal').addEventListener('click',()=>$('#sendModal').classList.remove('on'));
+$('#sendModal').addEventListener('click', e=>{ if(e.target.id==='sendModal') $('#sendModal').classList.remove('on'); });
+$('#sendMail').addEventListener('click',()=>{
+  location.href='mailto:lamopracownia@gmail.com?subject='+encodeURIComponent('Projekt fotoksiążki — '+(P.title||'bez tytułu'))+'&body='+encodeURIComponent(brief()+'\n\n(Zdjęcia dołączam do tej wiadomości lub przesyłam linkiem.)');
+});
+$('#sendWa').addEventListener('click',()=>{
+  window.open('https://wa.me/?text='+encodeURIComponent(brief()),'_blank');
+});
+$('#copyBrief').addEventListener('click',()=>{
+  const txt=brief();
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(()=>toast('Opis projektu skopiowany')).catch(()=>fallbackCopy(txt)); }
+  else fallbackCopy(txt);
+});
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Opis projektu skopiowany'); }catch(e){ toast('Skopiuj ręcznie z pola'); }
+  ta.remove();
+}
+
+/* --- start --- */
+$('#year').textContent=new Date().getFullYear();
+renderStart();
+/* --- panel pracowni (wersja pokazowa) --- */
+const PN_USER = 'monika', PN_PASS = 'lamo12345';
+const PN_KEY = 'lamo_panel_projects_v1';
+const PN_STATUSES = ['szkic','link wysłany','klient projektuje','oddany do pracowni','w druku','gotowy'];
+
+function pnLoad(){ try{ return JSON.parse(localStorage.getItem(PN_KEY)) || []; }catch(e){ return []; } }
+function pnSave(list){ try{ localStorage.setItem(PN_KEY, JSON.stringify(list)); }catch(e){} }
+function pnToken(){
+  const a = new Uint8Array(10);
+  (window.crypto || window.msCrypto).getRandomValues(a);
+  return [...a].map(x => x.toString(36).padStart(2,'0')).join('').slice(0,14);
+}
+function pnPrice(pr){
+  const f = FORMATS.find(x=>x.id===pr.format) || FORMATS[1];
+  const m = MATERIALS.find(x=>x.id===pr.material) || MATERIALS[0];
+  const fo = FOILS.find(x=>x.id===pr.foil) || FOILS[0];
+  return f.base + pr.spreads*PER_SPREAD + m.p + fo.p;
+}
+function pnLink(pr){
+  const payload = {t:pr.name, c:pr.client, f:pr.format, s:pr.spreads, m:pr.material, k:pr.color, o:pr.foil, id:pr.token};
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  return location.origin + location.pathname + '#p=' + b64;
+}
+function pnColorOf(pr){ const c = COLORS.find(x=>x.n===pr.color); return c ? c.c : '#C39199'; }
+
+function pnRenderList(){
+  const list = pnLoad(), host = $('#pnList');
+  $('#pnCount').textContent = list.length
+    ? list.length + (list.length===1 ? ' projekt' : (list.length<5 ? ' projekty' : ' projektów'))
+    : 'Brak projektów';
+  if(!list.length){
+    host.innerHTML = '<p class="pn-empty">Nie masz jeszcze żadnego projektu. Załóż pierwszy po prawej albo wczytaj przykłady.</p>';
+    return;
+  }
+  host.innerHTML = list.map((pr,i)=>{
+    const f = FORMATS.find(x=>x.id===pr.format) || FORMATS[1];
+    const m = MATERIALS.find(x=>x.id===pr.material) || MATERIALS[0];
+    const fo = FOILS.find(x=>x.id===pr.foil) || FOILS[0];
+    return `<div class="pj">
+      <div class="pj-h">
+        <span class="pj-sw" style="background:${pnColorOf(pr)}"></span>
+        <div>
+          <div class="pj-t">${pr.name}</div>
+          <div class="pj-c">${pr.client || 'bez klienta'} · utworzony ${pr.created}</div>
+        </div>
+        <span class="pj-st">${pr.status}</span>
+      </div>
+      <p class="pj-spec">${f.n} · ${pr.spreads} rozkładówek · ${m.n} · ${pr.color} · ${fo.n} · <b>${fmtPrice(pnPrice(pr))}</b></p>
+      <div class="pj-link">
+        <input type="text" readonly value="${pnLink(pr)}" data-i="${i}" class="pjUrl">
+        <button class="btn ghost sm" data-act="copy" data-i="${i}">Kopiuj</button>
+      </div>
+      <div class="pj-btns">
+        <button class="btn sm" data-act="open" data-i="${i}">Projektuj</button>
+        <button class="btn ghost sm" data-act="params" data-i="${i}">Parametry</button>
+        <button class="btn ghost sm" data-act="show" data-i="${i}">Pokaż klientowi</button>
+        <button class="btn ghost sm" data-act="print" data-i="${i}">Przygotuj do druku</button>
+        <button class="btn ghost sm" data-act="dup" data-i="${i}">Duplikuj</button>
+        <select data-act="status" data-i="${i}" style="width:auto;padding:8px 12px;font-size:.78rem">
+          ${PN_STATUSES.map(st=>`<option${st===pr.status?' selected':''}>${st}</option>`).join('')}
+        </select>
+        <button class="btn ghost sm" data-act="del" data-i="${i}">Usuń</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pnFillForm(){
+  $('#pfFormat').innerHTML  = FORMATS.map(f=>`<option value="${f.id}">${f.n}</option>`).join('');
+  $('#pfSpreads').innerHTML = SPREADS.map(n=>`<option value="${n}"${n===10?' selected':''}>${n}</option>`).join('');
+  $('#pfMat').innerHTML     = MATERIALS.map(m=>`<option value="${m.id}">${m.n}</option>`).join('');
+  $('#pfFoil').innerHTML    = FOILS.map(f=>`<option value="${f.id}">${f.n}</option>`).join('');
+  $('#pfColor').innerHTML   = COLORS.map((c,i)=>`<button type="button" class="dot-c" aria-pressed="${i===0}" data-pc="${c.n}" style="background:${c.c}" title="${c.n}"><span class="sr-only">${c.n}</span></button>`).join('');
+}
+let pfColor = COLORS[0].n;
+
+function pnOpen(){
+  $('#gate').classList.add('on');
+  $('#gate').setAttribute('aria-hidden','false');
+  const logged = sessionStorage.getItem('lamo_panel_in') === '1';
+  $('#gateLogin').style.display = logged ? 'none' : '';
+  $('#gatePanel').style.display = logged ? '' : 'none';
+  if(logged) pnRenderList(); else setTimeout(()=>$('#glUser').focus(), 60);
+}
+function pnClose(){ $('#gate').classList.remove('on'); $('#gate').setAttribute('aria-hidden','true'); }
+
+$('#goPanel').addEventListener('click', pnOpen);
+$('#glBack').addEventListener('click', pnClose);
+$('#pnBack').addEventListener('click', pnClose);
+$('#pnOut').addEventListener('click', ()=>{
+  sessionStorage.removeItem('lamo_panel_in');
+  $('#glPass').value = '';
+  $('#gatePanel').style.display = 'none';
+  $('#gateLogin').style.display = '';
+});
+function pnTryLogin(){
+  const u = $('#glUser').value.trim().toLowerCase().replace(/\s+/g,'');
+  const pw = $('#glPass').value.trim();
+  const uOk = (u === PN_USER || u === 'lamopracownia@gmail.com' || u === 'monika@lamo' );
+  if(uOk && pw.toLowerCase() === PN_PASS){
+    sessionStorage.setItem('lamo_panel_in','1');
+    $('#glErr').classList.remove('on');
+    $('#gateLogin').style.display = 'none';
+    $('#gatePanel').style.display = '';
+    pnRenderList();
+    toast('Zalogowano jako ' + PN_USER);
+  } else {
+    $('#glErr').classList.add('on');
+  }
+}
+$('#glGo').addEventListener('click', pnTryLogin);
+['#glUser','#glPass'].forEach(sel=>$(sel).addEventListener('keydown', e=>{ if(e.key==='Enter') pnTryLogin(); }));
+
+$('#pfColor').addEventListener('click', e=>{
+  const b = e.target.closest('[data-pc]'); if(!b) return;
+  pfColor = b.dataset.pc;
+  $$('#pfColor .dot-c').forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+});
+
+let pfEdit = -1;
+function pfReset(){
+  pfEdit = -1;
+  $('#pfHead').textContent = 'Nowy projekt';
+  $('#pfSub').textContent = 'Ustaw album i wyślij klientowi link.';
+  $('#pfGo').textContent = 'Załóż projekt i utwórz link';
+  $('#pfCancel').style.display = 'none';
+  $('#pfName').value = ''; $('#pfClient').value = '';
+}
+function pfFill(pr, i){
+  pfEdit = i;
+  $('#pfHead').textContent = 'Parametry projektu';
+  $('#pfSub').textContent = 'Zmień ustawienia albumu — link dla klienta zostaje ten sam.';
+  $('#pfGo').textContent = 'Zapisz zmiany';
+  $('#pfCancel').style.display = '';
+  $('#pfName').value = pr.name; $('#pfClient').value = pr.client || '';
+  $('#pfFormat').value = pr.format; $('#pfSpreads').value = String(pr.spreads);
+  $('#pfMat').value = pr.material; $('#pfFoil').value = pr.foil;
+  pfColor = pr.color;
+  $$('#pfColor .dot-c').forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.pc===pr.color)));
+  $('#pfName').scrollIntoView({behavior:'smooth', block:'center'});
+}
+$('#pfCancel').addEventListener('click', pfReset);
+
+$('#pfGo').addEventListener('click', ()=>{
+  const name = $('#pfName').value.trim();
+  if(!name){ toast('Podaj nazwę projektu'); $('#pfName').focus(); return; }
+  if(pfEdit > -1){
+    const list = pnLoad(), pr = list[pfEdit];
+    if(pr){
+      Object.assign(pr, {name, client:$('#pfClient').value.trim(), format:$('#pfFormat').value,
+        spreads:+$('#pfSpreads').value, material:$('#pfMat').value, foil:$('#pfFoil').value, color:pfColor});
+      pnSave(list);
+    }
+    pfReset(); pnRenderList(); toast('Parametry zapisane');
+    return;
+  }
+  const list = pnLoad();
+  list.unshift({
+    name, client: $('#pfClient').value.trim(),
+    format: $('#pfFormat').value, spreads: +$('#pfSpreads').value,
+    material: $('#pfMat').value, foil: $('#pfFoil').value, color: pfColor,
+    status: 'link wysłany', token: pnToken(),
+    created: new Date().toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'})
+  });
+  pnSave(list);
+  pfReset();
+  pnRenderList();
+  toast('Projekt założony — link gotowy do skopiowania');
+});
+
+$('#pnList').addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const list = pnLoad(), i = +b.dataset.i, pr = list[i];
+  if(!pr) return;
+  if(b.dataset.act === 'copy'){
+    const url = pnLink(pr);
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(()=>toast('Link skopiowany')).catch(()=>fallbackCopy(url));
+    else fallbackCopy(url);
+  }
+  if(b.dataset.act === 'open'){ pnClose(); pnApply(pr, true); }
+  if(b.dataset.act === 'params'){ pfFill(pr, i); }
+  if(b.dataset.act === 'show'){ window.open(pnLink(pr), '_blank'); }
+  if(b.dataset.act === 'print'){
+    pnClose(); pnApply(pr, true);
+    toast('Podgląd do druku — wybierz „Zapisz jako PDF”');
+    setTimeout(()=>window.print(), 700);
+  }
+  if(b.dataset.act === 'dup'){
+    const kopia = Object.assign({}, pr, {name: pr.name + ' (kopia)', token: pnToken(), status: 'szkic',
+      created: new Date().toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'})});
+    list.splice(i+1, 0, kopia); pnSave(list); pnRenderList(); toast('Projekt zduplikowany');
+  }
+  if(b.dataset.act === 'del'){ list.splice(i,1); pnSave(list); pnRenderList(); toast('Projekt usunięty'); }
+});
+$('#pnList').addEventListener('change', e=>{
+  const sel = e.target.closest('[data-act="status"]'); if(!sel) return;
+  const list = pnLoad(), i = +sel.dataset.i;
+  if(list[i]){ list[i].status = sel.value; pnSave(list); pnRenderList(); }
+});
+
+$('#pnDemo').addEventListener('click', ()=>{
+  const d = new Date().toLocaleDateString('pl-PL', {day:'numeric', month:'long', year:'numeric'});
+  pnSave([
+    {name:'Chrzest Zosi', client:'Anna Nowak', format:'20', spreads:5, material:'aksamit', foil:'zlote', color:'Pudrowy róż', status:'oddany do pracowni', token:pnToken(), created:d},
+    {name:'Sesja rodzinna Kowalskich', client:'Marta Kowalska', format:'25', spreads:10, material:'len', foil:'bezbarwne', color:'Szałwia', status:'klient projektuje', token:pnToken(), created:d},
+    {name:'Ślub Kasi i Piotra', client:'Katarzyna Wójcik', format:'30', spreads:15, material:'ekoskora', foil:'srebrne', color:'Ecru', status:'w druku', token:pnToken(), created:d}
+  ]);
+  pnRenderList();
+  toast('Wczytano trzy przykładowe projekty');
+});
+
+/* wejście z linku klienta */
+function pnApply(pr, fromPanel){
+  P.title = pr.name || P.title;
+  P.format   = FORMATS.find(x=>x.id===pr.format) || P.format;
+  P.spreads  = pr.spreads || P.spreads;
+  P.material = MATERIALS.find(x=>x.id===pr.material) || P.material;
+  P.color    = COLORS.find(x=>x.n===pr.color) || P.color;
+  P.foil     = FOILS.find(x=>x.id===pr.foil) || P.foil;
+  buildSpreads(P.spreads);
+  P.view = 0; selSlot = null; selPhoto = null;
+  $('#start').style.display = 'none';
+  $('#editor').classList.add('on');
+  $('#chipInfo').textContent = 'Krok 2 — układanie stron';
+  renderAll();
+  $('#ctxName').textContent = pr.name || 'fotoksiążka';
+  $('#ctxFor').textContent = pr.client ? ' · klient: ' + pr.client : '';
+  $('#ctx').classList.add('on');
+  if(!fromPanel) toast('Album gotowy do ułożenia — wgraj swoje zdjęcia');
+}
+$('#ctxClose').addEventListener('click', ()=>$('#ctx').classList.remove('on'));
+
+function pnReadHash(){
+  const m = location.hash.match(/[#&]p=([^&]+)/);
+  if(!m) return;
+  try{
+    const d = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    pnApply({name:d.t, client:d.c, format:d.f, spreads:d.s, material:d.m, color:d.k, foil:d.o}, false);
+  }catch(e){}
+}
+pnFillForm();
+pnReadHash();
+</script>
+</body>
+</html>

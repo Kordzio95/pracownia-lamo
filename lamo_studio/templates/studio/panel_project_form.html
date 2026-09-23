@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{% if is_new %}Nowy projekt{% else %}Parametry — {{ project.name }}{% endif %}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{% if is_new %}Nowy projekt{% else %}Parametry projektu{% endif %}</h1>
+    <p class="muted small">{% if is_new %}Ustaw album i od razu wgraj zdjęcia z sesji.{% else %}{{ project.name }}{% endif %}</p>
+  </div>
+</div>
+<form method="post" enctype="multipart/form-data" class="split">{% csrf_token %}
+  <div class="card">
+    <h2>Album i klient</h2>
+    <div class="divider"></div>
+    <div class="grid two">
+      {% for f in form %}{% if f.name != 'photos' and f.name != 'note' %}
+        <div class="field {% if f.field.widget.input_type == 'checkbox' %}check{% endif %}">
+          {% if f.field.widget.input_type == 'checkbox' %}{{ f }}<label for="{{ f.id_for_label }}">{{ f.label }}</label>
+          {% else %}<label for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f }}{% endif %}
+          {% if f.help_text %}<span class="helptext">{{ f.help_text }}</span>{% endif %}
+          {{ f.errors }}
+        </div>
+      {% endif %}{% endfor %}
+    </div>
+    <div class="field"><label for="{{ form.note.id_for_label }}">{{ form.note.label }}</label>{{ form.note }}</div>
+  </div>
+  <div class="card">
+    <h2>Zdjęcia z sesji</h2>
+    <p class="muted small">Klient zobaczy je w kreatorze i ułoży z nich album.</p>
+    <div class="field">{{ form.photos }}<span class="helptext">{{ form.photos.help_text }}</span></div>
+    <div class="divider"></div>
+    <button class="btn" type="submit">{% if is_new %}Utwórz projekt{% else %}Zapisz parametry{% endif %}</button>
+    {% if not is_new %}<a class="btn ghost" style="margin-top:8px" href="{{ project.get_absolute_url }}">Anuluj</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

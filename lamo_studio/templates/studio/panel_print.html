@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Do druku — {{ project.name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Arkusz produkcyjny</h1>
+    <p class="muted small">{{ project.name }} · {{ project.client_name }}</p>
+  </div>
+  <div class="spacer"></div>
+  <button class="btn" type="button" onclick="window.print()">Drukuj / zapisz PDF</button>
+  <a class="btn ghost" href="{{ project.get_absolute_url }}">Wróć</a>
+</div>
+<div class="card">
+  <h2>Specyfikacja albumu</h2>
+  <div class="divider"></div>
+  <ul class="rows">
+    <li><span>Format</span><b>{{ project.album_format.name }} ({{ project.album_format.width_cm }}×{{ project.album_format.height_cm }} cm)</b></li>
+    <li><span>Rozkładówki / strony</span><b>{{ project.spreads_count }} / {{ project.pages_count }}</b></li>
+    <li><span>Okładka</span><b>{{ project.cover_material.name }}, {{ project.cover_color.name }} ({{ project.cover_color.hex_code }})</b></li>
+    <li><span>Tłoczenie</span><b>{{ project.foil.name }}</b></li>
+    <li><span>Napis na okładce</span><b>{{ project.cover_title|default:"—" }}{% if project.cover_subtitle %} / {{ project.cover_subtitle }}{% endif %}</b></li>
+    <li><span>Tło stron / odstęp / margines</span><b>{{ project.page_bg }} · {{ project.page_gap }} px · {{ project.page_padding }} px</b></li>
+    <li><span>Wykorzystane zdjęcia</span><b>{{ project.used_slots }} z {{ project.total_slots }} miejsc</b></li>
+    <li><span>Cena orientacyjna</span><b>{{ project.price|floatformat:2 }} zł</b></li>
+  </ul>
+</div>
+<div class="card">
+  <h2>Spis stron</h2>
+  <div class="divider"></div>
+  <table>
+    <tr><th>Str.</th><th>Układ</th><th>Zdjęcia</th><th>Podpis</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.number }}</td>
+      <td>{{ r.layout }}</td>
+      <td class="small">{% for p in r.photos %}{{ p }}{% if not forloop.last %}<br>{% endif %}{% empty %}—{% endfor %}</td>
+      <td class="small">{{ r.caption|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% if project.client_note %}<div class="card"><h2>Uwagi klienta</h2><p class="small" style="white-space:pre-wrap">{{ project.client_note }}</p></div>{% endif %}
+{% endblock %}
