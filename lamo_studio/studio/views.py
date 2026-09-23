@@ -116,6 +116,7 @@ def project_payload(project: Project) -> dict:
 @transaction.atomic
 def apply_layout(project: Project, data: dict, *, by_client: bool):
     """Zapisuje do bazy układ stron który przyszedł z kreatora."""
+    # WAŻNE: to jest główny zapis albumu, przez tą funkcję idzie każdy autozapis z kreatora
     # atomic = albo zapisze się wszystko, albo nic, żeby nie został pół stary pół nowy album
     # by_client mówi kto zapisuje - klient może mniej niż fotograf
 
@@ -126,6 +127,7 @@ def apply_layout(project: Project, data: dict, *, by_client: bool):
     project.build_spreads(count=len(spreads_in))
 
     photo_ids = set(project.photos.values_list("pk", flat=True))
+    # WAŻNE: zabezpieczenie przed wstawieniem cudzych zdjęć, nie usuwać
     # numery zdjęć z TEGO projektu. niżej wstawiam tylko zdjęcia z tej listy,
     # więc jak ktoś podstawi numer cudzego zdjęcia to zostanie pominięte
 
@@ -190,7 +192,8 @@ def panel_projects(request):
     """Lista projektów fotografa, z filtrem i szukaniem."""
     projects = (
         Project.objects.filter(photographer=request.user)
-        # tylko projekty zalogowanego fotografa, cudzych nie widać
+        # WAŻNE: tylko projekty zalogowanego fotografa, cudzych nie widać.
+        # to samo photographer=request.user jest w każdym widoku panelu, bez tego każdy widziałby wszystko
         .select_related("album_format", "cover_material", "cover_color", "foil")
         # dociąga format, materiał itd. jednym zapytaniem
         .prefetch_related("photos")
@@ -477,7 +480,7 @@ def client_creator(request, token):
 # --- API dla kreatora ---
 # te funkcje woła JavaScript z kreatora, odpowiadają JSON-em a nie stroną
 #
-# csrf_exempt wyłącza ochronę CSRF, bo klient nie ma konta ani sesji.
+# WAŻNE: csrf_exempt wyłącza ochronę CSRF, bo klient nie ma konta ani sesji.
 # to jest słabe miejsce, do poprawy - np. token CSRF dawany przy wejściu w link.
 # na razie chroni to tylko to, że trzeba znać token projektu
 
@@ -490,11 +493,12 @@ def api_save(request, token):
     project = get_object_or_404(Project, token=token)
 
     by_client = not (request.user.is_authenticated and request.user == project.photographer)
+    # WAŻNE: tu program decyduje czy zapisuje pracownia czy klient (klient może mniej)
     # jak zalogowany jest właściciel to pracownia, w każdym innym wypadku traktuję jako klienta
 
     if by_client and not project.client_editing_enabled:
         return JsonResponse({"ok": False, "error": "Pracownia zablokowała edycję tego projektu."}, status=403)
-        # tu jest prawdziwa blokada, na serwerze. schowanie przycisków by nie wystarczyło
+        # WAŻNE: tu jest prawdziwa blokada, na serwerze. schowanie przycisków by nie wystarczyło
 
     try:
         data = json.loads(request.body.decode("utf-8"))
@@ -515,6 +519,7 @@ def api_save(request, token):
         if not last or (timezone.now() - last.created_at).total_seconds() > 600:
             project.log(ProjectEvent.Kind.CLIENT_SAVE, "autozapis układu")
             # autozapis leci co chwilę, więc do historii wpisuję max raz na 10 minut
+            # (600 = sekundy, mniejsza liczba = więcej wpisów w historii)
 
     return JsonResponse(
         {

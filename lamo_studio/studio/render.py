@@ -13,15 +13,19 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw, ImageFont  # Pillow - obrazki, rysowanie, zapis do PDF
 
 DPI = 300  # standard do druku
+# WAŻNE: zmiana DPI zmienia rozmiar i jakość całego PDF (mniej = mniejszy plik ale gorszy druk)
 MM_PER_INCH = 25.4  # 1 cal = 25,4 mm
 BLEED_MM = 3.0          # spad
+# WAŻNE: spad ustala drukarnia, zmieniać tylko jak drukarnia chce inny
 # spad to 3 mm zdjęcia wychodzące poza format, żeby po obcięciu nie było białej krawędzi
 SCREEN_PAGE_PX = 520.0  # tyle ma strona w kreatorze na ekranie
+# WAŻNE: musi się zgadzać z szerokością strony w kreatorze, inaczej odstępy na wydruku będą inne niż na ekranie
 # potrzebne do przeliczenia odstępów z ekranu na wydruk
 
 # układ -> (ile kolumn, wysokości rzędów, komórki: kolumna, rząd, colspan, rowspan)
 LAYOUTS: dict[str, tuple[int, list[float], list[tuple[int, int, int, int]]]] = {
     # to samo co siatka CSS w kreatorze, tylko w liczbach
+    # WAŻNE: nowy układ trzeba dodać tu, w models.py (SLOT_COUNTS) i w creator.html
     # colspan/rowspan jak w tabeli HTML, zdjęcie może zająć np 2 kolumny
     "full": (1, [1.0], [(0, 0, 1, 1)]),
     "two_v": (2, [1.0], [(0, 0, 1, 1), (1, 0, 1, 1)]),
@@ -168,7 +172,7 @@ def render_spread(spread, project, *, with_bleed: bool, marks: bool) -> Image.Im
     draw.rectangle([0, 0, sheet.width, sheet.height], fill=bg)
     # tło na cały arkusz razem ze spadem
 
-    # przeliczenie odstępów z ekranu na druk
+    # WAŻNE: przeliczenie odstępów z ekranu na druk, od tego zależy czy PDF wygląda jak podgląd
     scale = page_w / SCREEN_PAGE_PX
     # np 2362 / 520 = ok 4,5 czyli 10 px na ekranie to ok 45 px na wydruku
     gap = max(0, round(project.page_gap * scale))

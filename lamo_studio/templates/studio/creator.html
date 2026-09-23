@@ -232,10 +232,12 @@
   const SAVE_URL = '{{ save_url }}';
   const UPLOAD_URL = '{{ upload_url }}';
   const CAN_EDIT = MODE === 'studio' || {{ project.client_editing_enabled|yesno:"true,false" }};
+  // WAŻNE: od tego zależy czy w kreatorze są przyciski do edycji
   // pracownia może zawsze, klient tylko jak fotograf mu otworzy edycję.
   // to tylko chowa przyciski, prawdziwa blokada jest na serwerze (api_save)
 
   // ile zdjęć mieści układ, to samo co SLOT_COUNTS w Pythonie
+  // WAŻNE: zmiana tutaj musi być też w models.py i render.py
   const LAYOUTS = {
     full: 1, two_v: 2, two_h: 2, three: 3, four: 4, six: 6, frame: 1, blank: 0,
   };
@@ -283,6 +285,7 @@
     clearTimeout(saveTimer);
     $('chipSave').textContent = 'zmiany niezapisane';
     saveTimer = setTimeout(save, 1400);
+    // WAŻNE: 1400 = ile ms czeka autozapis. mniej = częstsze zapisy i więcej ruchu na serwer
   };
   async function save(extra = {}) {
     if (!CAN_EDIT || saving) return null;

@@ -14,6 +14,7 @@ from django.urls import reverse  # robi adres z nazwy, żeby nie wpisywać go r�
 def new_token() -> str:
     """Losowy token do linku dla klienta."""
     # nie daje numeru projektu w linku, bo ktoś by wpisał następny numer i zobaczył cudzy album
+    # WAŻNE: od tego zależy bezpieczeństwo linków. mniejsza liczba = krótszy token, łatwiej zgadnąć
     return secrets.token_urlsafe(16)
 
 
@@ -160,11 +161,13 @@ class Project(models.Model):
     # --- co klient może ---
     client_can_upload = models.BooleanField("klient może wgrywać własne zdjęcia", default=True)
     client_editing_enabled = models.BooleanField("klient może projektować album", default=False)
+    # WAŻNE: ten przełącznik decyduje czy klient może cokolwiek zapisać w albumie
     # na start wyłączone, fotograf najpierw szykuje album a potem otwiera klientowi
     # sprawdzane na serwerze przy zapisie (views.api_save), nie tylko schowane przyciski
 
     status = models.CharField("status", max_length=20, choices=Status.choices, default=Status.DRAFT)
     token = models.CharField("token linku", max_length=64, default=new_token, unique=True, db_index=True)
+    # WAŻNE: po tokenie klient wchodzi do albumu. zmiana tokena = stary link przestaje działać
     # new_token bez nawiasów! wtedy django woła to dla każdego nowego projektu.
     # z nawiasami wszystkie by miały ten sam token
     # db_index, żeby szybko szukało po tokenie
@@ -217,6 +220,7 @@ class Project(models.Model):
 
     def price(self):
         """Cena orientacyjna z cennika."""
+        # WAŻNE: tu jest cały wzór na cenę, zmiana tutaj zmienia cenę w panelu, adminie i kreatorze
         # liczona na bieżąco, więc zmiana cennika od razu jest widoczna.
         # jakby to szło na produkcję to trzeba by zapisać cenę przy przyjęciu zamówienia
         fmt = self.album_format
@@ -230,6 +234,7 @@ class Project(models.Model):
 
     def build_spreads(self, count=None, layout="two_v"):
         """Dorabia brakujące rozkładówki."""
+        # WAŻNE: to nigdy nie kasuje rozkładówek, tylko dokłada. dzięki temu praca klienta nie ginie
         # zaczyna od tych co już są i dokłada tylko brakujące,
         # więc jak się powiększy album to praca klienta zostaje
         count = count or self.spreads_count
@@ -313,6 +318,8 @@ class Page(models.Model):
     ]
     SLOT_COUNTS = {"full": 1, "two_v": 2, "two_h": 2, "three": 3, "four": 4, "six": 6, "frame": 1, "blank": 0}
     # ile zdjęć wchodzi w dany układ
+    # WAŻNE: jak tu coś zmienisz, to trzeba to samo zmienić w creator.html (LAYOUTS)
+    # i w render.py (LAYOUTS), inaczej podgląd i PDF będą się różnić
 
     class Side(models.TextChoices):
         LEFT = "L", "lewa"

@@ -22,10 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # klucz od Django, lokalnie może tak być. jak by to szło do internetu
 # to trzeba zrobić nowy i trzymać go poza kodem (zmienna środowiskowa)
+# WAŻNE: nie podawać nikomu klucza z serwera, lokalny może być
 SECRET_KEY = 'django-insecure-i74s2v&jm9f!w$-7!ve2wpzz=8^77ky7i55%8g#6$a+@_d&q%3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# WAŻNE: przed wrzuceniem do internetu zmienić na False
 # lokalnie True (pokazuje błędy), na serwerze musi być False
 
 ALLOWED_HOSTS = ["*"]  # każdy adres, żeby dało się wejść z telefonu w domu
@@ -136,6 +138,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOGIN_URL = "/panel/login/"  # tu przenosi jak ktoś nie jest zalogowany
 LOGIN_REDIRECT_URL = "/panel/"
 LOGOUT_REDIRECT_URL = "/panel/login/"
+# WAŻNE: jak zdjęcia się nie wgrywają (za duże), to tu się zwiększa limity
 # większe limity, bo zdjęcia z aparatu są duże i jest ich dużo naraz
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # max 100 MB na raz
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20 * 1024 * 1024  # większe niż 20 MB idą na dysk a nie do pamięci
